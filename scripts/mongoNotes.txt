@@ -1,0 +1,4 @@
+# notes for mongo shell and bash shell commands.
+
+mongoimport --host=127.0.0.1 -d=phi1337 --collection=train1 --type=csv --file="/home/karsus/Phi1337/dataset/train.csv" --headerline
+
