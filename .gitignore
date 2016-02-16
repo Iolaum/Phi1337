@@ -66,3 +66,6 @@ target/
 
 
 # # Our custom modifications follow here : # # 
+
+# Personal Working Directory for things we dont want to commit.
+/myNotes
