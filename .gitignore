@@ -63,6 +63,9 @@ target/
 #Ipython Notebook
 .ipynb_checkpoints
 
+# Intellij files
+.idea/
+
 
 
 # # Our custom modifications follow here : # # 
