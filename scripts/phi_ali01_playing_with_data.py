@@ -11,9 +11,9 @@ from nltk.stem.snowball import SnowballStemmer
 
 stemmer = SnowballStemmer('english')
 
-df_train = pd.read_csv('train.csv', encoding="ISO-8859-1") #read train.csv
-df_test = pd.read_csv('test.csv', encoding="ISO-8859-1") #read test.csv
-df_pro_desc = pd.read_csv('product_descriptions.csv') #read product_description.csv
+df_train = pd.read_csv('../dataset/train.csv', encoding="ISO-8859-1") #read train.csv
+df_test = pd.read_csv('../dataset/test.csv', encoding="ISO-8859-1") #read test.csv
+df_pro_desc = pd.read_csv('../dataset/product_descriptions.csv') #read product_description.csv
 
 num_train = df_train.shape[0]
 
