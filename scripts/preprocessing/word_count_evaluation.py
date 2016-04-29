@@ -6,12 +6,10 @@ import pickle
 from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
+stops = set(nltk.corpus.stopwords.words("english"))
 def clean_text(text):
     clean_text = re.sub("[^a-zA-Z0-9]]", " ", re.sub(r'[^\x00-\x7f]',r'', text), 0, re.UNICODE)
     words = clean_text.lower().split()
-
-    stops = set(nltk.corpus.stopwords.words("english"))
 
     meaningful_words = [w for w in words if w not in stops]
 
@@ -52,6 +50,7 @@ def main():
     bag_of_word_matrix = dict({bow_col0: [], bow_col1: [], bow_col2: [], bow_col3: []})
     prod_ids = training_data["product_uid"].unique()
     counter = 0
+    max_count = 10
 
     for prod_id in prod_ids:
         product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
@@ -83,13 +82,14 @@ def main():
         bag_of_word_matrix[bow_col3].append(tokenize_and_stem(clean_text(all_attributes)))
         
         counter += 1
+        if counter == max_count:
+            break
     
     # create panda dataframe
     df = pd.DataFrame(bag_of_word_matrix, index=prod_ids.tolist()[:counter], columns=column_orders)
     # print type(df.index.values[0])
     # print type(df.index[0])
-    df.to_pickle('./df.pickle')
-    print counter
+    df.to_pickle('../../dataset/bow_per_product.pickle')
      
         # for prod_attr in prod_attributes:
         #     print(prod_attr)
