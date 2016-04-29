@@ -1,7 +1,10 @@
 import pandas as pd
 import re
 import nltk
+import pickle
+
 from nltk.stem.snowball import SnowballStemmer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def clean_text(text):
@@ -12,31 +15,31 @@ def clean_text(text):
 
     meaningful_words = [w for w in words if w not in stops]
 
-    return " ".join(meaningful_words)
+return " ".join(meaningful_words)
 
 
 def tokenize_and_stem(text):
-    stemmer = SnowballStemmer("english")
+stemmer = SnowballStemmer("english")
 
-    # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
-    tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
-    filtered_tokens = []
+# first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
+tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
+filtered_tokens = []
 
-    # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
-    for token in tokens:
-        if re.search('[a-zA-Z]', token):
-            filtered_tokens.append(token)
-    stems = [stemmer.stem(t) for t in filtered_tokens]
+# filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
+for token in tokens:
+if re.search('[a-zA-Z]', token):
+    filtered_tokens.append(token)
+stems = [stemmer.stem(t) for t in filtered_tokens]
 
-    return " ".join(stems)
+return " ".join(stems)
 
 
 def main():
-    "Read Files"
-    default_atrr_name = "bullet"
-    # get the title from the matrix
-    training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
-    descriptions = pd.read_csv("../../dataset/product_descriptions.csv")
+"Read Files"
+default_atrr_name = "bullet"
+# get the title from the matrix
+training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
+descriptions = pd.read_csv("../../dataset/product_descriptions.csv")
     # columns name : [u'product_uid', u'name', u'value']
     attributes = pd.read_csv("../../dataset/attributes.csv")
 
@@ -47,7 +50,8 @@ def main():
     bow_col3 = 'attributes'
     column_orders = [bow_col0, bow_col1, bow_col2, bow_col3]
     bag_of_word_matrix = dict({bow_col0: [], bow_col1: [], bow_col2: [], bow_col3: []})
-    prod_ids = training_data["product_uid"]
+    prod_ids = training_data["product_uid"].unique()
+
     for prod_id in prod_ids:
         product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
         product_description = descriptions.loc[descriptions['product_uid'] == prod_id].iloc[0]['product_description']
