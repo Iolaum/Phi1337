@@ -52,7 +52,7 @@ def main():
     bag_of_word_matrix = dict({bow_col0: [], bow_col1: [], bow_col2: [], bow_col3: []})
     prod_ids = training_data["product_uid"].unique()
     counter = 0
-    
+
     for prod_id in prod_ids:
         product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
         product_description = descriptions.loc[descriptions['product_uid'] == prod_id].iloc[0]['product_description']
@@ -66,7 +66,15 @@ def main():
             if r['name'].lower().find(default_atrr_name) != -1:
                 attrs.append(r['value'])
             else:
-                attrs.append(' '.join([r['name'], r['value']]))
+                str1 = str(r['name'])
+                str2 = str(r['value'])
+                mixed_str = []
+                if len(str1) > 0:
+                    mixed_str.append(str1)
+                if len(str2) > 0:
+                    mixed_str.append(str2)
+                
+                attrs.append(' '.join(mixed_str))
         all_attributes = ' '.join(attrs)
         
         bag_of_word_matrix[bow_col0].append(prod_id)
@@ -77,8 +85,11 @@ def main():
         counter += 1
     
     # create panda dataframe
-    df = pd.DataFrame(bag_of_word_matrix, columns=column_orders)
+    df = pd.DataFrame(bag_of_word_matrix, index=prod_ids.tolist()[:counter], columns=column_orders)
+    # print type(df.index.values[0])
+    # print type(df.index[0])
     df.to_pickle('./df.pickle')
+    print counter
      
         # for prod_attr in prod_attributes:
         #     print(prod_attr)
