@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def clean_text(text):
-    clean_text = re.sub("[^a-zA-Z0-9]]", " ", text, 0, re.UNICODE)
+    clean_text = re.sub("[^a-zA-Z0-9]]", " ", re.sub(r'[^\x00-\x7f]',r'', text), 0, re.UNICODE)
     words = clean_text.lower().split()
 
     stops = set(nltk.corpus.stopwords.words("english"))
@@ -51,7 +51,8 @@ def main():
     column_orders = [bow_col0, bow_col1, bow_col2, bow_col3]
     bag_of_word_matrix = dict({bow_col0: [], bow_col1: [], bow_col2: [], bow_col3: []})
     prod_ids = training_data["product_uid"].unique()
-
+    counter = 0
+    
     for prod_id in prod_ids:
         product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
         product_description = descriptions.loc[descriptions['product_uid'] == prod_id].iloc[0]['product_description']
@@ -73,8 +74,12 @@ def main():
         bag_of_word_matrix[bow_col2].append(tokenize_and_stem(clean_text(product_description)))
         bag_of_word_matrix[bow_col3].append(tokenize_and_stem(clean_text(all_attributes)))
         
-        print bag_of_word_matrix
-        break
+        counter += 1
+    
+    # create panda dataframe
+    df = pd.DataFrame(bag_of_word_matrix, columns=column_orders)
+    df.to_pickle('./df.pickle')
+     
         # for prod_attr in prod_attributes:
         #     print(prod_attr)
 
