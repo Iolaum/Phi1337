@@ -27,11 +27,20 @@ xtr, xts, ytr, yts = train_test_split(X, Y, test_size=0.2, random_state=13)
 # print(yts.shape)
 
 lin_model = LinearRegression()
+
+# from sklearn.svm import SVR
+# lin_model = SVR()
+# 0.506153191762
+# 0.506015067785
+
+
 lin_model.fit(xtr, ytr)
 
+# Check for overfitting. Predicted the relevance for the training data.
 ytr_pred = lin_model.predict(xtr)
 ytr_error = sqrt(mean_squared_error(ytr_pred, ytr))
 
+# Predicted the relevance for the test data.
 yts_pred = lin_model.predict(xts)
 yts_error = sqrt(mean_squared_error(yts_pred, yts))
 
