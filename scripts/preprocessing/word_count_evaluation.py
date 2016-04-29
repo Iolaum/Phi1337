@@ -31,7 +31,7 @@ def tokenize_and_stem(text):
             filtered_tokens.append(token)
     stems = [stemmer.stem(t) for t in filtered_tokens]
 
-    return " ".join(stems)
+    return stems
 
 
 def main():
