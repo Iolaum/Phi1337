@@ -33,19 +33,44 @@ def tokenize_and_stem(text):
 
 def main():
     "Read Files"
+    default_atrr_name = "bullet"
     # get the title from the matrix
     training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
     descriptions = pd.read_csv("../../dataset/product_descriptions.csv")
-    attributes = pd.read_csv("../../dataset/product_descriptions.csv")
+    # columns name : [u'product_uid', u'name', u'value']
+    attributes = pd.read_csv("../../dataset/attributes.csv")
 
-    bag_of_word_matrix = dict()
+    # column names : 'title', 'description', 'attributes'
+    bow_col0 = 'product_uid'
+    bow_col1 = 'title'
+    bow_col2 = 'description'
+    bow_col3 = 'attributes'
+    column_orders = [bow_col0, bow_col1, bow_col2, bow_col3]
+    bag_of_word_matrix = dict({bow_col0: [], bow_col1: [], bow_col2: [], bow_col3: []})
     prod_ids = training_data["product_uid"]
     for prod_id in prod_ids:
-        # product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
-        # product_description = descriptions.loc[descriptions['product_uid'] == prod_id].iloc[0]['product_description']
+        product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
+        product_description = descriptions.loc[descriptions['product_uid'] == prod_id].iloc[0]['product_description']
         prod_attributes = attributes.loc[attributes['product_uid'] == prod_id]
 
-        print(prod_attributes)
+        # print(tokenize_and_stem(clean_text(product_title)))
+        # print(product_description)
+        # print(prod_attributes.shape)
+        attrs = []
+        for i,r in prod_attributes.iterrows():
+            if r['name'].lower().find(default_atrr_name) != -1:
+                attrs.append(r['value'])
+            else:
+                attrs.append(' '.join([r['name'], r['value']]))
+        all_attributes = ' '.join(attrs)
+        
+        bag_of_word_matrix[bow_col0].append(prod_id)
+        bag_of_word_matrix[bow_col1].append(tokenize_and_stem(clean_text(product_title)))
+        bag_of_word_matrix[bow_col2].append(tokenize_and_stem(clean_text(product_description)))
+        bag_of_word_matrix[bow_col3].append(tokenize_and_stem(clean_text(all_attributes)))
+        
+        print bag_of_word_matrix
+        break
         # for prod_attr in prod_attributes:
         #     print(prod_attr)
 
