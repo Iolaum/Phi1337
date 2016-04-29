@@ -15,23 +15,23 @@ def clean_text(text):
 
     meaningful_words = [w for w in words if w not in stops]
 
-return " ".join(meaningful_words)
+    return " ".join(meaningful_words)
 
 
 def tokenize_and_stem(text):
-stemmer = SnowballStemmer("english")
+    stemmer = SnowballStemmer("english")
 
-# first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
-tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
-filtered_tokens = []
+    # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
+    tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
+    filtered_tokens = []
 
-# filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
-for token in tokens:
-if re.search('[a-zA-Z]', token):
-    filtered_tokens.append(token)
-stems = [stemmer.stem(t) for t in filtered_tokens]
+    # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
+    for token in tokens:
+        if re.search('[a-zA-Z]', token):
+            filtered_tokens.append(token)
+    stems = [stemmer.stem(t) for t in filtered_tokens]
 
-return " ".join(stems)
+    return " ".join(stems)
 
 
 def main():
