@@ -1,6 +1,6 @@
 # coding: utf-8
 
-"defining processing functions"
+# "defining processing functions"
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, BaggingRegressor
@@ -30,7 +30,7 @@ def str_common_letter(str1, str2):
     return sum(int(str2.find(letter) >= 0) for letter in str1)
 
 
-"process data"
+# "process data"
 print("process data...")
 
 print("Concatenating train and test data")
