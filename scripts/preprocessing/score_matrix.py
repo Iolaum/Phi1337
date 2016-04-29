@@ -36,6 +36,7 @@ def create_score_dataframe():
         index=training_data['id'].tolist()
     )
 
+    counter = 0
     for isearch in training_data.iterrows():
         search_term_set = set(tokenize_and_stem(clean_text(isearch[1].search_term)))
 
@@ -52,7 +53,6 @@ def create_score_dataframe():
             'title_set': set(bow_matrix.ix[np.int64(p_id), 'title']),
             'descr_set': set(bow_matrix.ix[np.int64(p_id), 'description']),
             'attr_set': set(bow_matrix.ix[np.int64(p_id), 'attributes']),
-
         }
 
         # # debug prints
@@ -78,16 +78,26 @@ def create_score_dataframe():
 
         score_df.loc[search_id] = pd.Series(score_row)
 
+        if (counter % 1000) == 0:
+            print ("Succesfully created " + str(counter) + " rows")
+        counter += 1
         # # Debug
         # print(score_df)
 
-        score_df.to_pickle('../../dataset/score_df.pickle')
-        print("Score Dataframe succesfully saved!")
+    score_df.to_pickle('../../dataset/score_df.pickle')
+    print("Score Dataframe succesfully saved!")
 
 
 def calculate_field_score(field_set, search_set):
     comset = field_set & search_set
-    return len(comset) / len(search_set)
+
+    try:
+        return len(comset) / len(search_set)
+    except ZeroDivisionError:
+        print("Division Error occured")
+        print("ComSet length: " + str(len(comset)))
+        print("SearchSet length: " + str(len(search_set)))
+        return len(comset)
 
 
 if __name__ == "__main__":
