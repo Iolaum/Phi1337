@@ -35,11 +35,11 @@ return " ".join(stems)
 
 
 def main():
-"Read Files"
-default_atrr_name = "bullet"
-# get the title from the matrix
-training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
-descriptions = pd.read_csv("../../dataset/product_descriptions.csv")
+    "Read Files"
+    default_atrr_name = "bullet"
+    # get the title from the matrix
+    training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
+    descriptions = pd.read_csv("../../dataset/product_descriptions.csv")
     # columns name : [u'product_uid', u'name', u'value']
     attributes = pd.read_csv("../../dataset/attributes.csv")
 
