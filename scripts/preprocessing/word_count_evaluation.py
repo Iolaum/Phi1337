@@ -1,7 +1,10 @@
 import pandas as pd
 import re
 import nltk
+import pickle
+
 from nltk.stem.snowball import SnowballStemmer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def clean_text(text):
@@ -36,10 +39,11 @@ def main():
     # get the title from the matrix
     training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
     descriptions = pd.read_csv("../../dataset/product_descriptions.csv")
-    attributes = pd.read_csv("../../dataset/product_descriptions.csv")
+    attributes = pd.read_csv("../../dataset/attributes.csv")
 
     bag_of_word_matrix = dict()
-    prod_ids = training_data["product_uid"]
+    prod_ids = training_data["product_uid"].unique()
+
     for prod_id in prod_ids:
         # product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
         # product_description = descriptions.loc[descriptions['product_uid'] == prod_id].iloc[0]['product_description']
