@@ -32,7 +32,7 @@ def create_score_dataframe():
     # print(training_data)
 
     score_df = pd.DataFrame(
-        columns=['search_id', 'title_rate', 'desc_rate', 'attr_rate', 'relevance'],
+        columns=['title_rate', 'desc_rate', 'attr_rate', 'relevance'],
         index=training_data['id'].tolist()
     )
 
@@ -67,7 +67,6 @@ def create_score_dataframe():
 
         # Instantiate each df row
         score_row = {
-            'search_id': search_id,
             'relevance': relevance
         }
 
@@ -95,8 +94,6 @@ def calculate_field_score(field_set, search_set):
         return len(comset) / len(search_set)
     except ZeroDivisionError:
         print("Division Error occured")
-        print("ComSet length: " + str(len(comset)))
-        print("SearchSet length: " + str(len(search_set)))
         return len(comset)
 
 
