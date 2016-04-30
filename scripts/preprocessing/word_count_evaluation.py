@@ -7,8 +7,10 @@ from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 stops = set(nltk.corpus.stopwords.words("english"))
+
+
 def clean_text(text):
-    clean_text = re.sub("[^a-zA-Z0-9]]", " ", re.sub(r'[^\x00-\x7f]',r'', text), 0, re.UNICODE)
+    clean_text = re.sub("[^a-zA-Z0-9]]", " ", re.sub(r'[^\x00-\x7f]', r'', text), 0, re.UNICODE)
     words = clean_text.lower().split()
 
     meaningful_words = [w for w in words if w not in stops]
@@ -16,7 +18,7 @@ def clean_text(text):
     return " ".join(meaningful_words)
 
 
-def tokenize_and_stem(text):
+def tokenize_and_stem(text, return_text=False):
     stemmer = SnowballStemmer("english")
 
     # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
@@ -29,11 +31,11 @@ def tokenize_and_stem(text):
             filtered_tokens.append(token)
     stems = [stemmer.stem(t) for t in filtered_tokens]
 
-    return stems
+    return " ".join(stems) if return_text else stems
 
 
-def main():
-    "Read Files"
+def main(return_text=False):
+    # Read Files
     default_atrr_name = "bullet"
     # get the title from the matrix
     training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
@@ -51,6 +53,7 @@ def main():
     prod_ids = training_data["product_uid"].unique()
     counter = 0
     max_count = 10
+    return_txt = "texts" if return_text else "lists"
 
     for prod_id in prod_ids:
         product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
@@ -61,7 +64,7 @@ def main():
         # print(product_description)
         # print(prod_attributes.shape)
         attrs = []
-        for i,r in prod_attributes.iterrows():
+        for i, r in prod_attributes.iterrows():
             if r['name'].lower().find(default_atrr_name) != -1:
                 attrs.append(r['value'])
             else:
@@ -72,27 +75,27 @@ def main():
                     mixed_str.append(str1)
                 if len(str2) > 0:
                     mixed_str.append(str2)
-                
+
                 attrs.append(' '.join(mixed_str))
         all_attributes = ' '.join(attrs)
-        
+
         bag_of_word_matrix[bow_col0].append(prod_id)
-        bag_of_word_matrix[bow_col1].append(tokenize_and_stem(clean_text(product_title)))
-        bag_of_word_matrix[bow_col2].append(tokenize_and_stem(clean_text(product_description)))
-        bag_of_word_matrix[bow_col3].append(tokenize_and_stem(clean_text(all_attributes)))
-        
+        bag_of_word_matrix[bow_col1].append(tokenize_and_stem(clean_text(product_title), return_text))
+        bag_of_word_matrix[bow_col2].append(tokenize_and_stem(clean_text(product_description), return_text))
+        bag_of_word_matrix[bow_col3].append(tokenize_and_stem(clean_text(all_attributes), return_text))
+
         counter += 1
         if counter == max_count:
             break
-    
+
     # create panda dataframe
     df = pd.DataFrame(bag_of_word_matrix, index=prod_ids.tolist()[:counter], columns=column_orders)
     # print type(df.index.values[0])
     # print type(df.index[0])
-    df.to_pickle('../../dataset/bow_per_product.pickle')
-     
-        # for prod_attr in prod_attributes:
-        #     print(prod_attr)
+    df.to_pickle('../../dataset/bow_per_product_' + return_txt + '.pickle')
+
+    # for prod_attr in prod_attributes:
+    #     print(prod_attr)
 
     # testing_data = pd.read_csv("test.csv", encoding="ISO-8859-1")
 
@@ -103,8 +106,9 @@ def main():
     #     print(stemmed_desc)
     #     exit()
 
-        # attribute_data = pd.read_csv("attributes.csv")
+    # attribute_data = pd.read_csv("attributes.csv")
 
 
 if __name__ == "__main__":
-    main()
+    # Change return_text to decide if the cleaned result of each text will be text or list
+    main(return_text=False)
