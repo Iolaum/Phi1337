@@ -90,6 +90,8 @@ def preprocess_data():
     training_data = pd.merge(training_data, brands, how='left', on='product_uid')
 
     training_data = fixtypos(training_data)
+    training_data['info'] = training_data['search_term'] + "\t" + training_data['product_title'] + "\t" + \
+                            training_data['product_description']
 
     training_data.to_csv('../../dataset/preprocessed_training_data.csv', encoding='utf-8')
 
@@ -113,7 +115,7 @@ def feature_generation():
             'search_length',
             'title_length',
             'desc_length',
-            'brand_length', \
+            'brand_length',
             'search_text_occurences_in_title',  #
             'search_text_occurences_in_description',
             'search_last_word_in_title',
@@ -126,41 +128,40 @@ def feature_generation():
         index=training_data['id'].tolist()
     )
 
+    training_data['attr'] = training_data['search_term'] + "\t" + training_data['brand']
+    brands = pd.unique(training_data.brand.ravel())
+    d = {}
+    i = 1000
+    for s in brands:
+        d[s] = i
+        i += 3
 
-# df_all['len_of_query'] = df_all['search_term'].map(lambda x:len(x.split())).astype(np.int64)
-# df_all['len_of_title'] = df_all['product_title'].map(lambda x:len(x.split())).astype(np.int64)
-# df_all['len_of_description'] = df_all['product_description'].map(lambda x:len(x.split())).astype(np.int64)
+    feature_df['search_term_length'] = training_data['search_term'].map(lambda i: len(i))
+    feature_df['search_word_count'] = training_data['search_term'].map(lambda i: len(i.split())).astype(np.int64)
+    feature_df['title_word_count'] = training_data['product_title'].map(lambda i: len(i.split())).astype(np.int64)
+    feature_df['desc_word_count'] = training_data['product_description'].map(lambda i: len(i.split())).astype(np.int64)
+    feature_df['brand_length'] = training_data['brand'].map(lambda i: len(i.split())).astype(np.int64)
+    feature_df['search_text_occurences_in_title'] = training_data['info'].map(
+        lambda i: find_occurences(i.split('\t')[0], i.split('\t')[1]))
+    feature_df['search_text_occurences_in_description'] = training_data['info'].map(
+        lambda i: find_occurences(i.split('\t')[0], i.split('\t')[2]))
+    training_data['search_term'].map(lambda i: len(i.split())).astype(np.int64)
+    feature_df['search_last_word_in_title'] = training_data['info'].map(
+        lambda i: find_occurences(i.split('\t')[0].split(" ")[-1], i.split('\t')[1]))
+    feature_df['search_last_word_in_description'] = training_data['info'].map(
+        lambda i: find_occurences(i.split('\t')[0].split(" ")[-1], i.split('\t')[2]))
+    feature_df['search_title_common_words'] = training_data['info'].map(
+        lambda i: common_words(i.split('\t')[0], i.split('\t')[1]))
+    feature_df['search_description_common_words'] = training_data['info'].map(
+        lambda i: common_words(i.split('\t')[0], i.split('\t')[2]))
+    feature_df['search_brand_common_words'] = training_data['attr'].map(
+        lambda i: common_words(i.split('\t')[0], i.split('\t')[1]))
+    feature_df['brand_rate'] = feature_df['search_brand_common_words'] / feature_df['brand_length']
+    feature_df['brands_numerical'] = training_data['brand'].map(lambda x: d[x])
 
-# df_all['len_of_brand'] = df_all['brand'].map(lambda x:len(x.split())).astype(np.int64)
-# df_all['search_term'] = df_all['product_info'].map(lambda x:seg_words(x.split('\t')[0],x.split('\t')[1]))
-
-# #print("--- Search Term Segment: %s minutes ---" % round(((time.time() - start_time)/60),2))
-# df_all['query_in_title'] = df_all['product_info'].map(lambda x:str_whole_word(x.split('\t')[0],x.split('\t')[1],0))
-# df_all['query_in_description'] = df_all['product_info'].map(lambda x:str_whole_word(x.split('\t')[0],x.split('\t')[2],0))
-# print("--- Query In: %s minutes ---" % round(((time.time() - start_time)/60),2))
-# df_all['query_last_word_in_title'] = df_all['product_info'].map(lambda x:str_common_word(x.split('\t')[0].split(" ")[-1],x.split('\t')[1]))
-# df_all['query_last_word_in_description'] = df_all['product_info'].map(lambda x:str_common_word(x.split('\t')[0].split(" ")[-1],x.split('\t')[2]))
-# print("--- Query Last Word In: %s minutes ---" % round(((time.time() - start_time)/60),2))
-# df_all['word_in_title'] = df_all['product_info'].map(lambda x:str_common_word(x.split('\t')[0],x.split('\t')[1]))
-# df_all['word_in_description'] = df_all['product_info'].map(lambda x:str_common_word(x.split('\t')[0],x.split('\t')[2]))
-
-
-# df_all['ratio_title'] = df_all['word_in_title']/df_all['len_of_query']
-# df_all['ratio_description'] = df_all['word_in_description']/df_all['len_of_query']
-
-
-# df_all['attr'] = df_all['search_term']+"\t"+df_all['brand']
-# df_all['word_in_brand'] = df_all['attr'].map(lambda x:str_common_word(x.split('\t')[0],x.split('\t')[1]))
-# df_all['ratio_brand'] = df_all['word_in_brand']/df_all['len_of_brand']
-# df_brand = pd.unique(df_all.brand.ravel())
-# d={}
-# i = 1000
-# for s in df_brand:
-#     d[s]=i
-#     i+=3
-# df_all['brand_feature'] = df_all['brand'].map(lambda x:d[x])
-# df_all['search_term_feature'] = df_all['search_term'].map(lambda x:len(x))
-
+    print(feature_df.shape)
+    print(feature_df.head(10))
+    feature_df.to_csv('../../dataset/features.csv', encoding='utf-8')
 
 
 if __name__ == "__main__":
