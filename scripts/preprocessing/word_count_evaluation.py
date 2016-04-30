@@ -16,35 +16,38 @@ def clean_text(text):
     meaningful_words = [w for w in words if w not in stops]
 
     return " ".join(meaningful_words)
-    
-    
+
+
 def fixtypos(training_data):
-	# traing_data to be given when called
-	
-	with open("../../dataset/misstypo.p", 'rb') as f:
+    # traing_data to be given when called
+
+    with open("../../dataset/misstypo.p", 'rb') as f:
         dic = pickle.load(f)
-    
+
     print("Started replacing typos in search terms")
-    print("This may take a while...")    
+    print("This may take a while...")
     training_data['search_term'] = training_data['search_term'].replace(dic)
-    
+
     return training_data
 
 
 def tokenize_and_stem(text, return_text=False):
-    stemmer = SnowballStemmer("english")
+    if isinstance(text, str):
+        text = text.decode('utf-8')
+        stemmer = SnowballStemmer("english")
 
-    # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
-    tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
-    filtered_tokens = []
+        # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
+        tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
+        filtered_tokens = []
 
-    # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
-    for token in tokens:
-        if re.search('[a-zA-Z]', token):
-            filtered_tokens.append(token)
-    stems = [stemmer.stem(t) for t in filtered_tokens]
+        # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
+        for token in tokens:
+            if re.search('[a-zA-Z]', token):
+                filtered_tokens.append(token)
+        stems = [stemmer.stem(t) for t in filtered_tokens]
 
-    return " ".join(stems) if return_text else stems
+        return " ".join(stems) if return_text else stems
+    return text
 
 
 def main(return_text=False):
