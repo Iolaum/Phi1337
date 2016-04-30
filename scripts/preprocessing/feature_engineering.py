@@ -9,6 +9,7 @@ from word_count_evaluation import tokenize_and_stem
 from word_count_evaluation import fixtypos
 from unidecode import unidecode
 
+
 def common_words(s1, s2):
     words, cnt = s1.split(), 0
     for word in words:
@@ -112,18 +113,20 @@ def feature_generation():
 
     feature_df = pd.DataFrame(
         columns=[
-            'search_length',
-            'title_length',
-            'desc_length',
-            'brand_length',
-            'search_text_occurences_in_title',  #
+            'search_term_length',
+            'search_word_count',
+            'title_word_count',
+            'desc_word_count',
+            'search_text_occurences_in_title',
             'search_text_occurences_in_description',
             'search_last_word_in_title',
             'search_last_word_in_description',
             'search_title_common_words',
             'search_description_common_words',
-            'search_brand_common_words',
-            'brand_rate',
+            # 'brand_word_count',
+            # 'search_brand_common_words',
+            # 'brand_rate',
+            # 'brands_numerical',
         ],
         index=training_data['id'].tolist()
     )
@@ -140,7 +143,6 @@ def feature_generation():
     feature_df['search_word_count'] = training_data['search_term'].map(lambda i: len(i.split())).astype(np.int64)
     feature_df['title_word_count'] = training_data['product_title'].map(lambda i: len(i.split())).astype(np.int64)
     feature_df['desc_word_count'] = training_data['product_description'].map(lambda i: len(i.split())).astype(np.int64)
-    feature_df['brand_length'] = training_data['brand'].map(lambda i: len(i.split())).astype(np.int64)
     feature_df['search_text_occurences_in_title'] = training_data['info'].map(
         lambda i: find_occurences(i.split('\t')[0], i.split('\t')[1]))
     feature_df['search_text_occurences_in_description'] = training_data['info'].map(
@@ -154,10 +156,11 @@ def feature_generation():
         lambda i: common_words(i.split('\t')[0], i.split('\t')[1]))
     feature_df['search_description_common_words'] = training_data['info'].map(
         lambda i: common_words(i.split('\t')[0], i.split('\t')[2]))
-    feature_df['search_brand_common_words'] = training_data['attr'].map(
-        lambda i: common_words(i.split('\t')[0], i.split('\t')[1]))
-    feature_df['brand_rate'] = feature_df['search_brand_common_words'] / feature_df['brand_length']
-    feature_df['brands_numerical'] = training_data['brand'].map(lambda x: d[x])
+    # feature_df['brand_word_count'] = training_data['brand'].map(lambda i: len(i.split())).astype(np.int64)
+    # feature_df['search_brand_common_words'] = training_data['attr'].map(
+    #     lambda i: common_words(i.split('\t')[0], i.split('\t')[1]))
+    # feature_df['brand_rate'] = feature_df['search_brand_common_words'] / feature_df['brand_length']
+    # feature_df['brands_numerical'] = training_data['brand'].map(lambda x: d[x])
 
     print(feature_df.shape)
     print(feature_df.head(10))
