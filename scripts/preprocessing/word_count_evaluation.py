@@ -16,6 +16,19 @@ def clean_text(text):
     meaningful_words = [w for w in words if w not in stops]
 
     return " ".join(meaningful_words)
+    
+    
+def fixtypos(training_data):
+	# traing_data to be given when called
+	
+	with open("../../dataset/misstypo.p", 'rb') as f:
+        dic = pickle.load(f)
+    
+    print("Started replacing typos in search terms")
+    print("This may take a while...")    
+    training_data['search_term'] = training_data['search_term'].replace(dic)
+    
+    return training_data
 
 
 def tokenize_and_stem(text, return_text=False):
