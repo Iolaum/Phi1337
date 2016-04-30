@@ -40,7 +40,7 @@ def tokenize_and_stem(text, return_text=False):
         tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
 
         # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
-        stems = [stemmer.stem(t) for t in filtered_tokens]
+        stems = [stemmer.stem(t) for t in tokens]
 
         return " ".join(stems) if return_text else stems
     return text
