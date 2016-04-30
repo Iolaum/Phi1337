@@ -8,32 +8,37 @@ from math import sqrt
 from sklearn.svm import SVR
 
 
-def regression(regression_type, use_tfidf, debug=False):
+def regression(reg_type, use_tfidf, debug=False):
     score_df = pd.read_pickle('../../dataset/score_df.pickle')
-    rate_range = range(0, 4)
-    y_col = 4
 
     if use_tfidf:
         # tfidf score dataframe
         print("Running Regression with TFIDF score dataframe")
         score_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
 
-        rate_range = range(0, 3)
-        y_col = 3
-
     training_set = np.array(score_df)
     # # Debug
     # print(training_set)
 
-    X = training_set[:, rate_range]
-    Y = training_set[:, y_col]
+    X = training_set[:, range(0, 3)]
+    Y = training_set[:, 3]
 
     # Debug
 
     if debug:
+        print("Score DataFrame")
         print(score_df)
+        print("")
+
+        print("Training Values")
         print(X)
+        print("")
+
+        print("Output Values")
         print(Y)
+        print("")
+
+        print("Shapes of X and Y")
         print(X.shape)
         print(Y.shape)
 
@@ -41,12 +46,17 @@ def regression(regression_type, use_tfidf, debug=False):
 
     # Debug
     if debug:
+        print("XTR - XTS")
         print(xtr.shape)
         print(xts.shape)
+        print("")
+
+        print("YTR - YTS")
         print(ytr.shape)
         print(yts.shape)
+        print("")
 
-    if regression_type == 'linear':
+    if reg_type == 'linear':
         print("Regression Type - Linear")
         lin_model = LinearRegression()
     else:
@@ -74,9 +84,9 @@ def regression(regression_type, use_tfidf, debug=False):
 
 if __name__ == "__main__":
     # Change between SVR or Linear
-    regression_type = 'svr'
+    regression_type = 'linear'
 
     # Change to use tfidf scores
-    use_tfidf = True
+    use_tfidf = False
 
     regression(regression_type, use_tfidf, debug=True)
