@@ -7,6 +7,8 @@ from sklearn.metrics import mean_squared_error
 from math import sqrt
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestRegressor
+
 
 
 def regression(reg_type, use_tfidf, standardize_df, debug=False):
@@ -63,15 +65,17 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
     if reg_type == 'linear':
         print("Regression Type - Linear")
         lin_model = LinearRegression()
-    else:
+    elif reg_type == 'SVR':
         print("Regression Type - SVR(RBF)")
         lin_model = SVR()
+    elif reg_type == 'rfr':
+        print("Regression Type - Random Forest Regressor (RFR)")
+        lin_model = RandomForestRegressor()
 
     lin_model.fit(xtr, ytr)
 
     # Check for overfitting. Predicted the relevance for the training data.
-    print("")
-    print("Error on training set")
+    print("\nError on training set")
     ytr_pred = lin_model.predict(xtr)
     ytr_error = sqrt(mean_squared_error(ytr_pred, ytr))
     print(ytr_error)
@@ -87,11 +91,11 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
 
 
 if __name__ == "__main__":
-    # Change between SVR or Linear
-    regression_type = 'SVR'
-    standardize_df = True
+    # Change between SVR or Linear or rfr
+    regression_type = 'rfr'
+    standardize_df = False
 
     # Change to use tfidf scores
-    use_tfidf = True
+    use_tfidf = False
 
     regression(regression_type, use_tfidf, standardize_df, debug=False)
