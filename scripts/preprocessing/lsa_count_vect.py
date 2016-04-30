@@ -51,7 +51,6 @@ def get_similarity_matrix(tfidf_matr, kernel):
     return dist
 
 
-
 def perform_lsa_count_vect(debug):
     cvect = CountVectorizer(min_df=0)
 
@@ -91,7 +90,6 @@ def perform_lsa_count_vect(debug):
         # count vectorizer to books
         cvect_matrix = cvect.fit_transform(test_matrix)
 
-
         # # debug
         # print cvect_matrix
         # print type(cvect_matrix)
@@ -113,33 +111,33 @@ def perform_lsa_count_vect(debug):
 
         score_row = {
             'relevance': relevance,
-            }
+        }
         # debug
 
 
-        for key,value in enumerate(lsa_matrix[0]):
+        for key, value in enumerate(lsa_matrix[0]):
             score_row[key] = value
 
-        #     if debug:
-        #         print key
-        #         print value
-        
-        print("Score row {} is:\n{}".format(counter,score_row))
-		
-        # if counter == 2:
-		#     break
+            #     if debug:
+            #         print key
+            #         print value
 
+            # # Debug
+            # print("Score row {} is:\n{}".format(counter,score_row))
+
+            # if counter == 2:
+        #     break
 
         score_df.loc[search_id] = pd.Series(score_row)
-        print("pd.series score_row is:\n{}".format(pd.Series(score_row)))
+        # print("pd.series score_row is:\n{}".format(pd.Series(score_row)))
 
         counter += 1
 
-        if (counter is not 0 and counter % 1000 == 0):
+        if counter is not 0 and counter % 1000 == 0:
             print(str(counter) + " searches processed")
-        # # Stop execution for debug reasons
-        # if counter == 1000:
-        #     break
+            # # Stop execution for debug reasons
+            # if counter == 1000:
+            #     break
 
     score_df.to_pickle('../../dataset/score_df_lsa_cvect.pickle')
 
@@ -148,8 +146,6 @@ def perform_lsa_count_vect(debug):
 
     print("Score Dataframe lsa_cvect succesfully saved!")
     return None
-
-
 
 
 def perform_tf_idf(debug=False):
@@ -236,9 +232,9 @@ def perform_tf_idf(debug=False):
 
         if (counter is not 0 and counter % 1000 == 0):
             print(str(counter) + " searches processed")
-        # # Stop execution for debug reasons
-        # if counter == 1000:
-        #     break
+            # # Stop execution for debug reasons
+            # if counter == 1000:
+            #     break
 
     score_df.to_pickle('../../dataset/score_df_tfidf.pickle')
 
@@ -250,7 +246,7 @@ def perform_tf_idf(debug=False):
 
 
 if __name__ == "__main__":
-    #perform_tf_idf(debug=True)
+    # perform_tf_idf(debug=True)
     perform_lsa_count_vect(debug=True)
 
 
@@ -271,4 +267,3 @@ if __name__ == "__main__":
 
 # Calculate similarity with - laplacian kernel
 # [[ 0.          0.01290305  0.10028499  0.07684025]
-
