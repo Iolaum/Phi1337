@@ -7,7 +7,7 @@ from nltk.stem.porter import *
 
 from word_count_evaluation import tokenize_and_stem
 from word_count_evaluation import fixtypos
-
+from unidecode import unidecode
 
 def common_words(s1, s2):
     words, cnt = s1.split(), 0
@@ -23,7 +23,7 @@ def find_occurences(s1, s2):
 
 def preprocess_text(text):
     if isinstance(text, str):
-    	text = re.sub(r'[^\x00-\x7f]', r'', text)
+    	# text = re.sub(r'[^\x00-\x7f]', r'', text)
         text = text.lower()
         text = text.replace("  ", " ")
         text = text.replace(",", "")
@@ -46,7 +46,7 @@ def preprocess_text(text):
         text = re.sub(r"([0-9]+)( *)(ounces|ounce|oz)\.?", r"\1oz. ", text)
         text = re.sub(r"([0-9]+)( *)(centimeters|cm)\.?", r"\1cm. ", text)
         text = re.sub(r"([0-9]+)( *)(milimeters|mm)\.?", r"\1mm. ", text)
-        # text = text.replace(u"°".encode("utf-8"), " degrees ")
+        text = text.replace("°", " degrees ")
         text = re.sub(r"([0-9]+)( *)(degrees|degree)\.?", r"\1deg. ", text)
         text = text.replace(" v ", " volts ")
         text = re.sub(r"([0-9]+)( *)(volts|volt)\.?", r"\1volt. ", text)
@@ -67,15 +67,15 @@ def preprocess_data():
 
     print("Preprocess Search Terms")
     training_data['search_term'] = training_data['search_term'].map(
-        lambda i: tokenize_and_stem(preprocess_text(str(i)), return_text=True))
+        lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
 
     print("Preprocess Titles")
     training_data['product_title'] = training_data['product_title'].map(
-        lambda i: tokenize_and_stem(preprocess_text(str(i)), return_text=True))
+        lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
 
     print("Preprocess Descriptions")
     descriptions['product_description'] = descriptions['product_description'].map(
-        lambda i: tokenize_and_stem(preprocess_text(str(i)), return_text=True))
+        lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
 
     print(descriptions['product_description'])
 
