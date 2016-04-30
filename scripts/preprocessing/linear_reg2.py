@@ -9,13 +9,19 @@ from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 
 
-def regression(reg_type, use_tfidf, standardize_df, debug=False):
+
+def regression(reg_type, use_tfidf, standardize_df, count_vect, debug=False):
     score_df = pd.read_pickle('../../dataset/score_df.pickle')
 
     if use_tfidf:
         # tfidf score dataframe
         print("Running Regression with TFIDF score dataframe")
         score_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
+
+    if count_vect:
+        # count_vect score dataframe
+        print("Running Regression with Count_Vect score dataframe")
+        score_df = pd.read_pickle('../../dataset/score_df_count_vect.pickle')
 
     training_set = np.array(score_df)
     # # Debug
@@ -62,17 +68,17 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
 
     if reg_type == 'linear':
         print("Regression Type - Linear")
-        lin_model = LinearRegression()
+        tr_model = LinearRegression()
     else:
         print("Regression Type - SVR(RBF)")
-        lin_model = SVR()
+        tr_model = SVR()
 
-    lin_model.fit(xtr, ytr)
+    tr_model.fit(xtr, ytr)
 
     # Check for overfitting. Predicted the relevance for the training data.
     print("")
     print("Error on training set")
-    ytr_pred = lin_model.predict(xtr)
+    ytr_pred = tr_model.predict(xtr)
     ytr_error = sqrt(mean_squared_error(ytr_pred, ytr))
     print(ytr_error)
 
@@ -80,7 +86,7 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
 
     # Predicted the relevance for the test data.
     print("Error on validation set. Check for overfitting")
-    yts_pred = lin_model.predict(xts)
+    yts_pred = tr_model.predict(xts)
     yts_error = sqrt(mean_squared_error(yts_pred, yts))
 
     print(yts_error)
@@ -88,10 +94,12 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
 
 if __name__ == "__main__":
     # Change between SVR or Linear
-    regression_type = 'SVR'
-    standardize_df = True
+    regression_type = 'linear'
+    standardize_df = False
 
     # Change to use tfidf scores
-    use_tfidf = True
+    use_tfidf = False
 
-    regression(regression_type, use_tfidf, standardize_df, debug=False)
+    count_vect = True
+
+    regression(regression_type, use_tfidf, standardize_df, count_vect, debug=False)
