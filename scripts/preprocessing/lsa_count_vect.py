@@ -10,7 +10,7 @@ from sklearn.metrics.pairwise import polynomial_kernel
 from sklearn.metrics.pairwise import sigmoid_kernel
 from sklearn.metrics.pairwise import rbf_kernel
 from sklearn.metrics.pairwise import laplacian_kernel
-from gensim.models.tfidfmodel import TfidfModel
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import TruncatedSVD
 
@@ -62,7 +62,7 @@ def perform_lsa_count_vect(debug):
     training_data = pd.read_csv('../../dataset/train.csv', encoding='ISO-8859-1')
 
     score_df = pd.DataFrame(
-        columns=['title_rate', 'desc_rate', 'attr_rate', 'relevance'],
+        columns=[0, 1, 2, 3, 'relevance'],
         index=training_data['id'].tolist()
     )
 
@@ -123,12 +123,15 @@ def perform_lsa_count_vect(debug):
         #     if debug:
         #         print key
         #         print value
-        # print score_row
+        
+        print("Score row {} is:\n{}".format(counter,score_row))
+		
         # if counter == 2:
-        #     exit()
+		#     break
 
 
         score_df.loc[search_id] = pd.Series(score_row)
+        print("pd.series score_row is:\n{}".format(pd.Series(score_row)))
 
         counter += 1
 
