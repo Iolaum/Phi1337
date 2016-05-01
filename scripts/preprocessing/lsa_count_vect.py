@@ -83,9 +83,9 @@ def perform_lsa_count_vect(debug):
 
         test_matrix = [
             search_term_tokens,
-            " ".join(doc_matrix.ix[np.int64(p_id), 'title']),
-            " ".join(doc_matrix.ix[np.int64(p_id), 'description']),
-            " ".join(doc_matrix.ix[np.int64(p_id), 'attributes']),
+            (" ".join(doc_matrix.ix[np.int64(p_id), 'title'])).decode('ISO-8859-1'),
+            (" ".join(doc_matrix.ix[np.int64(p_id), 'description'])).decode('ISO-8859-1'),
+            (" ".join(doc_matrix.ix[np.int64(p_id), 'attributes'])).decode('ISO-8859-1'),
         ]
 
         # count vectorizer to books

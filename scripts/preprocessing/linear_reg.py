@@ -19,6 +19,9 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
         print("Running Regression with TFIDF score dataframe")
         score_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
 
+    # Fill NaN value
+    score_df = score_df.fillna(0.0)
+
     # The last column is the target
     training_set = np.array(score_df)
     # # Debug
