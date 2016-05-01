@@ -19,12 +19,13 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
         print("Running Regression with TFIDF score dataframe")
         score_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
 
+    # The last column is the target
     training_set = np.array(score_df)
     # # Debug
     # print(training_set)
 
-    X = training_set[:, range(0, 3)]
-    Y = training_set[:, 3]
+    X = training_set[:, :-2] # grab the first to the col before last column
+    Y = training_set[:, -1] # the last col_index
 
     if standardize_df:
         X = StandardScaler().fit_transform(X)

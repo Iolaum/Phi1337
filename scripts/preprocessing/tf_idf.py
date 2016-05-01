@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 
-from word_count_evaluation import clean_text, tokenize_and_stem
+from word_count_evaluation import clean_text
+from feature_engineering import tokenize_and_stem
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity

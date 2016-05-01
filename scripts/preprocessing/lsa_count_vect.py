@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 
-from word_count_evaluation import clean_text, tokenize_and_stem
+from word_count_evaluation import clean_text
+from feature_engineering import tokenize_and_stem
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -54,7 +55,7 @@ def get_similarity_matrix(tfidf_matr, kernel):
 def perform_lsa_count_vect(debug):
     cvect = CountVectorizer(min_df=0)
 
-    doc_matrix = pd.read_pickle('../../dataset/bow_per_product_texts.pickle')
+    doc_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
     # if debug:
     #     print doc_matrix
 
@@ -82,9 +83,9 @@ def perform_lsa_count_vect(debug):
 
         test_matrix = [
             search_term_tokens,
-            doc_matrix.ix[np.int64(p_id), 'title'],
-            doc_matrix.ix[np.int64(p_id), 'description'],
-            doc_matrix.ix[np.int64(p_id), 'attributes'],
+            " ".join(doc_matrix.ix[np.int64(p_id), 'title']),
+            " ".join(doc_matrix.ix[np.int64(p_id), 'description']),
+            " ".join(doc_matrix.ix[np.int64(p_id), 'attributes']),
         ]
 
         # count vectorizer to books

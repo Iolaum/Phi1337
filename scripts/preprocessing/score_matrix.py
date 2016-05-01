@@ -2,8 +2,10 @@ from __future__ import division
 import pickle
 import pandas as pd
 import numpy as np
+import os
 
-from word_count_evaluation import clean_text, tokenize_and_stem
+from word_count_evaluation import clean_text
+from feature_engineering import tokenize_and_stem
 
 
 def map_sets_to_rates(set_name):
@@ -31,8 +33,32 @@ def create_score_dataframe():
     # print(bow_matrix)
     # print(training_data)
 
+    # Read additional features from the result of feature_engineering
+    # and append to score_df before saving it.
+    # Read from file
+    preprocessed_path = '../../dataset/features.csv'
+    features_df = None
+    should_add_features = False
+    if os.path.isfile(preprocessed_path):
+        print("Found Preprocessed DataFrame... Begin appending features to score matrix")
+        features_df = pd.read_csv(preprocessed_path, index_col=0)
+        should_add_features = True
+    else:
+        print("Not Found Preprocessed DataFrame")
+
+    all_feature_names = ['title_rate', 'desc_rate', 'attr_rate']
+
+    if should_add_features:
+        feature_names = features_df.columns.tolist()
+        no_features = len(feature_names)
+        all_feature_names.extend(feature_names)
+        print features_df.index
+
+    # append last column with target, so it's easy to extract columns when creating X and Y.
+    all_feature_names.append('relevance')
+    print("Features: {}".format(all_feature_names))
     score_df = pd.DataFrame(
-        columns=['title_rate', 'desc_rate', 'attr_rate', 'relevance'],
+        columns=all_feature_names,
         index=training_data['id'].tolist()
     )
 
@@ -45,14 +71,15 @@ def create_score_dataframe():
 
         # get p_id, search_id and relevance from tr_data
         p_id = isearch[1].product_uid
+        np_pid = np.int64(p_id)
         relevance = isearch[1].relevance
         search_id = isearch[1].id
 
         # query the bow_matrix
         sets = {
-            'title_set': set(bow_matrix.ix[np.int64(p_id), 'title']),
-            'descr_set': set(bow_matrix.ix[np.int64(p_id), 'description']),
-            'attr_set': set(bow_matrix.ix[np.int64(p_id), 'attributes']),
+            'title_set': set(bow_matrix.ix[np_pid, 'title']),
+            'descr_set': set(bow_matrix.ix[np_pid, 'description']),
+            'attr_set': set(bow_matrix.ix[np_pid, 'attributes']),
         }
 
         # # debug prints
@@ -75,6 +102,11 @@ def create_score_dataframe():
             col_name = map_sets_to_rates(set_name)
             score_row[col_name] = score
 
+        ### ADD FEATURES ###
+        if should_add_features:
+            for fname in feature_names:
+                score_row[fname] = features_df.ix[search_id, fname]
+
         score_df.loc[search_id] = pd.Series(score_row)
 
         if (counter % 1000) == 0:
@@ -82,6 +114,8 @@ def create_score_dataframe():
         counter += 1
         # # Debug
         # print(score_df)
+
+    print score_df.shape
 
     score_df.to_pickle('../../dataset/score_df.pickle')
     print("Score Dataframe succesfully saved!")

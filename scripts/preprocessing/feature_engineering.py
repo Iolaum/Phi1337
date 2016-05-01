@@ -3,11 +3,39 @@
 import numpy as np
 import os
 import pandas as pd
+import re
+import nltk
+import pickle
 from nltk.stem.porter import *
+from nltk.stem.snowball import SnowballStemmer
 
-from word_count_evaluation import tokenize_and_stem
-from word_count_evaluation import fixtypos
 from unidecode import unidecode
+
+def fixtypos(training_data):
+    # traing_data to be given when called
+
+    with open("../../dataset/misstypo.p", 'rb') as f:
+        dic = pickle.load(f)
+
+    print("Started replacing typos in search terms")
+    print("This may take a while...")
+    training_data['search_term'] = training_data['search_term'].replace(dic)
+
+    return training_data
+
+def tokenize_and_stem(text, return_text=False):
+    if isinstance(text, str):
+        text = text.decode('utf-8')
+        stemmer = SnowballStemmer("english")
+
+        # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
+        tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
+
+        # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
+        stems = [stemmer.stem(t) for t in tokens]
+
+        return " ".join(stems) if return_text else stems
+    return text
 
 
 def common_words(s1, s2):
@@ -57,60 +85,59 @@ def preprocess_text(text):
 
 
 def preprocess_data():
-    print("Preprocessing Started")
-    print("")
+    if os.path.isfile("../../dataset/preprocessed_training_data.csv"):
+        print("Found Preprocessed DataFrame")
+        return pd.read_csv("../../dataset/preprocessed_training_data.csv", encoding="ISO-8859-1")
+    else:
+        print("Preprocessing Started")
+        print("")
 
-    training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
-    descriptions = pd.read_csv("../../dataset/product_descriptions.csv", encoding="ISO-8859-1")
-    attributes = pd.read_csv("../../dataset/attributes.csv")
-    brands = attributes[attributes.name == "MFG Brand Name"][["product_uid", "value"]].rename(
-        columns={"value": "brand"})
+        training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
+        descriptions = pd.read_csv("../../dataset/product_descriptions.csv", encoding="ISO-8859-1")
+        attributes = pd.read_csv("../../dataset/attributes.csv")
+        brands = attributes[attributes.name == "MFG Brand Name"][["product_uid", "value"]].rename(
+            columns={"value": "brand"})
 
-    print("Preprocess Search Terms")
-    training_data['search_term'] = training_data['search_term'].map(
-        lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
+        print("Preprocess Search Terms")
+        training_data['search_term'] = training_data['search_term'].map(
+            lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
 
-    print("Preprocess Titles")
-    training_data['product_title'] = training_data['product_title'].map(
-        lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
+        print("Preprocess Titles")
+        training_data['product_title'] = training_data['product_title'].map(
+            lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
 
-    print("Preprocess Descriptions")
-    descriptions['product_description'] = descriptions['product_description'].map(
-        lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
+        print("Preprocess Descriptions")
+        descriptions['product_description'] = descriptions['product_description'].map(
+            lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
 
-    print(descriptions['product_description'])
+        print(descriptions['product_description'])
 
-    print("Preprocess Brands")
-    brands['brand'] = brands['brand'].map(
-        lambda i: tokenize_and_stem(preprocess_text(i), return_text=True))
+        print("Preprocess Brands")
+        brands['brand'] = brands['brand'].map(
+            lambda i: tokenize_and_stem(preprocess_text(i), return_text=True))
 
-    print("Merge data with descriptions")
-    training_data = pd.merge(training_data, descriptions, how='left', on='product_uid')
+        print("Merge data with descriptions")
+        training_data = pd.merge(training_data, descriptions, how='left', on='product_uid')
 
-    print("Merge data with brands")
-    training_data = pd.merge(training_data, brands, how='left', on='product_uid')
+        print("Merge data with brands")
+        training_data = pd.merge(training_data, brands, how='left', on='product_uid')
 
-    training_data = fixtypos(training_data)
-    training_data['info'] = training_data['search_term'] + "\t" + training_data['product_title'] + "\t" + \
-                            training_data['product_description']
+        training_data = fixtypos(training_data)
+        training_data['info'] = training_data['search_term'] + "\t" + training_data['product_title'] + "\t" + \
+                                training_data['product_description']
 
-    training_data.to_csv('../../dataset/preprocessed_training_data.csv', encoding='utf-8')
+        training_data.to_csv('../../dataset/preprocessed_training_data.csv', encoding='utf-8')
 
-    return training_data
+        return training_data
 
 
 def feature_generation():
-    if os.path.isfile("../../dataset/preprocessed_training_data.csv"):
-        print("Found Preprocessed DataFrame")
-        training_data = pd.read_csv("../../dataset/preprocessed_training_data.csv", encoding="ISO-8859-1")
-    else:
-        training_data = preprocess_data()
+    training_data = preprocess_data()
 
     print(training_data)
     print("")
 
     print("Creating Feature Dataframe")
-
     feature_df = pd.DataFrame(
         columns=[
             'search_term_length',

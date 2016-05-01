@@ -2,9 +2,11 @@ import pandas as pd
 import re
 import nltk
 import pickle
+import os
 
 from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from feature_engineering import preprocess_data
 
 stops = set(nltk.corpus.stopwords.words("english"))
 
@@ -17,41 +19,11 @@ def clean_text(text):
 
     return " ".join(meaningful_words)
 
-
-def fixtypos(training_data):
-    # traing_data to be given when called
-
-    with open("../../dataset/misstypo.p", 'rb') as f:
-        dic = pickle.load(f)
-
-    print("Started replacing typos in search terms")
-    print("This may take a while...")
-    training_data['search_term'] = training_data['search_term'].replace(dic)
-
-    return training_data
-
-
-def tokenize_and_stem(text, return_text=False):
-    if isinstance(text, str):
-        text = text.decode('utf-8')
-        stemmer = SnowballStemmer("english")
-
-        # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
-        tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
-
-        # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
-        stems = [stemmer.stem(t) for t in tokens]
-
-        return " ".join(stems) if return_text else stems
-    return text
-
-
 def main(return_text=False):
     # Read Files
     default_atrr_name = "bullet"
     # get the title from the matrix
-    training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
-    descriptions = pd.read_csv("../../dataset/product_descriptions.csv")
+    training_data = preprocess_data()
     # columns name : [u'product_uid', u'name', u'value']
     attributes = pd.read_csv("../../dataset/attributes.csv")
 
@@ -64,12 +36,11 @@ def main(return_text=False):
     bag_of_word_matrix = dict({bow_col0: [], bow_col1: [], bow_col2: [], bow_col3: []})
     prod_ids = training_data["product_uid"].unique()
     counter = 0
-    max_count = 10
-    return_txt = "texts" if return_text else "lists"
+    max_count = -1
 
     for prod_id in prod_ids:
         product_title = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_title']
-        product_description = descriptions.loc[descriptions['product_uid'] == prod_id].iloc[0]['product_description']
+        product_description = training_data.loc[training_data['product_uid'] == prod_id].iloc[0]['product_description']
         prod_attributes = attributes.loc[attributes['product_uid'] == prod_id]
 
         # print(tokenize_and_stem(clean_text(product_title)))
@@ -92,9 +63,9 @@ def main(return_text=False):
         all_attributes = ' '.join(attrs)
 
         bag_of_word_matrix[bow_col0].append(prod_id)
-        bag_of_word_matrix[bow_col1].append(tokenize_and_stem(clean_text(product_title), return_text))
-        bag_of_word_matrix[bow_col2].append(tokenize_and_stem(clean_text(product_description), return_text))
-        bag_of_word_matrix[bow_col3].append(tokenize_and_stem(clean_text(all_attributes), return_text))
+        bag_of_word_matrix[bow_col1].append(product_title.split())
+        bag_of_word_matrix[bow_col2].append(product_description.split())
+        bag_of_word_matrix[bow_col3].append(all_attributes.split())
 
         counter += 1
         if counter == max_count:
@@ -104,7 +75,7 @@ def main(return_text=False):
     df = pd.DataFrame(bag_of_word_matrix, index=prod_ids.tolist()[:counter], columns=column_orders)
     # print type(df.index.values[0])
     # print type(df.index[0])
-    df.to_pickle('../../dataset/bow_per_product_' + return_txt + '.pickle')
+    df.to_pickle('../../dataset/bow_per_product.pickle')
 
     # for prod_attr in prod_attributes:
     #     print(prod_attr)
@@ -123,4 +94,8 @@ def main(return_text=False):
 
 if __name__ == "__main__":
     # Change return_text to decide if the cleaned result of each text will be text or list
-    main(return_text=False)
+    if os.path.isfile("../../dataset/bow_per_product.pickle"):
+        print("Found Bag of Words DataFrame... No Need to proceed further.")
+    else:
+        print("No Bag of Words DataFrame Found... Proceed BoW creation")
+        main(return_text=False)
