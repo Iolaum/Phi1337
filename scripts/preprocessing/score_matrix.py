@@ -102,12 +102,13 @@ def create_score_dataframe():
             col_name = map_sets_to_rates(set_name)
             score_row[col_name] = score
 
+        row_series = pd.Series(score_row)
+
         ### ADD FEATURES ###
         if should_add_features:
-            for fname in feature_names:
-                score_row[fname] = features_df.ix[search_id, fname]
-
-        score_df.loc[search_id] = pd.Series(score_row)
+            row_series = row_series.append(features_df.ix[search_id])
+            
+        score_df.loc[search_id] = row_series
 
         if (counter % 1000) == 0:
             print ("Succesfully created " + str(counter) + " rows")

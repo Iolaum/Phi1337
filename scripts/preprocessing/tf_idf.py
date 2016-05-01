@@ -3,6 +3,7 @@ import numpy as np
 
 from word_count_evaluation import clean_text
 from feature_engineering import tokenize_and_stem
+from unidecode import unidecode
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -92,9 +93,9 @@ def perform_tf_idf(debug=False):
 
         test_matrix = [
             " ".join(search_term_tokens),
-            " ".join(bow_matrix.ix[np.int64(p_id), 'title']),
-            " ".join(bow_matrix.ix[np.int64(p_id), 'description']),
-            " ".join(bow_matrix.ix[np.int64(p_id), 'attributes']),
+            (" ".join(bow_matrix.ix[np.int64(p_id), 'title'])).decode('ISO-8859-1'),
+            (" ".join(bow_matrix.ix[np.int64(p_id), 'description'])).decode('ISO-8859-1'),
+            (" ".join(bow_matrix.ix[np.int64(p_id), 'attributes'])).decode('ISO-8859-1'),
         ]
 
         tfidf_matrix = tfidf_vectorizer.fit_transform(test_matrix)  # fit the vectorizer to books
