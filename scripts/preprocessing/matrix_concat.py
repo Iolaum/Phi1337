@@ -4,9 +4,9 @@ import numpy as np
 import os
 
 def concatDataFrames():
-	score_df = pd.read_csv('../../dataset/score_df.csv')
-	tf_idf_df = pd.read_csv('../../dataset/score_df_tfidf.csv')
-	lsa_df = pd.read_csv('../../dataset/score_df_lsa_cvect.csv')
+	score_df = pd.read_pickle('../../dataset/score_df.pickle')
+	tf_idf_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
+	lsa_df = pd.read_pickle('../../dataset/score_df_lsa_cvect.pickle')
 	# Read additional features from the result of feature_engineering
 	# and append to score_df before saving it.
 	# Read from file
@@ -34,7 +34,7 @@ def concatDataFrames():
 		
 		result = pd.concat([score_df, tf_idf_df, lsa_df, features_df, target_column], axis=1)
 		print result.shape
-		result.to_csv('../../dataset/score_df_final.csv')
+		result.to_pickle('../../dataset/score_df_final.pickle')
 
 
 if __name__ == "__main__":

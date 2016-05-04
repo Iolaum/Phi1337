@@ -53,7 +53,7 @@ def get_similarity_matrix(tfidf_matr, kernel):
 
 
 def perform_tf_idf(debug=False):
-    bow_matrix = pd.read_csv('../../dataset/bow_per_product.csv')
+    bow_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
 
     max_features = None
     # define vectorizer parameters
@@ -66,7 +66,7 @@ def perform_tf_idf(debug=False):
     print("Perform TF-IDF on the search results -- Max features = " + str(max_features))
     kernel_type = 'rbf'
 
-    training_data = pd.read_csv('../../dataset/train.csv', encoding='ISO-8859-1')
+    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv', encoding='ISO-8859-1')
 
     # # debug prints
     #     print("Bag of words matrix: ")
@@ -140,7 +140,7 @@ def perform_tf_idf(debug=False):
         # if counter == 1000:
         #     break
 
-    score_df.to_csv('../../dataset/score_df_tfidf.csv')
+    score_df.to_pickle('../../dataset/score_df_tfidf.pickle')
 
     if debug:
         print(score_df)

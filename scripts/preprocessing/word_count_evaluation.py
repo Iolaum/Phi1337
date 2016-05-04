@@ -68,13 +68,16 @@ def main(return_text=False):
         counter += 1
         if counter == max_count:
             break
+        if counter % 1000 == 0:
+            print("Processed " + str(counter) + " entries.")
 
     # create panda dataframe
     df = pd.DataFrame(bag_of_word_matrix, index=prod_ids.tolist()[:counter], columns=column_orders)
 
     # print type(df.index.values[0])
     # print type(df.index[0])
-    df.to_csv('../../dataset/bow_per_product.csv')
+    df.to_pickle('../../dataset/bow_per_product.pickle')
+    print(" Finished creating bag of word matrix!")
 
     # for prod_attr in prod_attributes:
     #     print(prod_attr)
@@ -93,7 +96,7 @@ def main(return_text=False):
 
 if __name__ == "__main__":
     # Change return_text to decide if the cleaned result of each text will be text or list
-    if os.path.isfile("../../dataset/bow_per_product.csv"):
+    if os.path.isfile("../../dataset/bow_per_product.pickle"):
         print("Found Bag of Words DataFrame... No Need to proceed further.")
     else:
         print("No Bag of Words DataFrame Found... Proceed BoW creation")
