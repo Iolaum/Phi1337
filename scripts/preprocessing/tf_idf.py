@@ -74,28 +74,7 @@ def perform_tf_idf(debug=False):
     #     print("")
     #     print("Training Data: ")
     #     print(training_data)
-
-    # Read additional features from the result of feature_engineering
-    # and append to score_df before saving it.
-    # Read from file
-    preprocessed_path = '../../dataset/features.csv'
-    features_df = None
-    should_add_features = False
-    if os.path.isfile(preprocessed_path):
-        print("Found Preprocessed DataFrame... Begin appending features to score matrix")
-        features_df = pd.read_csv(preprocessed_path, index_col=0)
-        should_add_features = True
-    else:
-        print("Not Found Preprocessed DataFrame")
-
-    all_feature_names = ['title_rate', 'desc_rate', 'attr_rate']
-    if should_add_features:
-        feature_names = features_df.columns.tolist()
-        no_features = len(feature_names)
-        all_feature_names.extend(feature_names)
-
-    # append last column with target, so it's easy to extract columns when creating X and Y.
-    all_feature_names.append('relevance')
+    all_feature_names = ['title_rate', 'desc_rate', 'attr_rate', 'relevance']
     score_df = pd.DataFrame(
         columns=all_feature_names,
         index=training_data['id'].tolist()
@@ -151,12 +130,7 @@ def perform_tf_idf(debug=False):
             'attr_rate': attr_score,
         }
 
-        row_series = pd.Series(score_row)
-        ### ADD FEATURES ###
-        if should_add_features:
-            row_series = row_series.append(features_df.ix[search_id])
-
-        score_df.loc[search_id] = row_series
+        score_df.loc[search_id] = pd.Series(score_row)
 
         counter += 1
 

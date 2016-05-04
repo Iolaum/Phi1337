@@ -5,8 +5,8 @@ import os
 
 def concatDataFrames():
 	score_df = pd.read_pickle('../../dataset/score_df.pickle')
-	tf_idf_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
-	lsa_df = pd.read_pickle('../../dataset/score_df_lsa_cvect.pickle')
+	#tf_idf_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
+	#lsa_df = pd.read_pickle('../../dataset/score_df_lsa_cvect.pickle')
 	# Read additional features from the result of feature_engineering
 	# and append to score_df before saving it.
 	# Read from file
@@ -30,6 +30,7 @@ def concatDataFrames():
 		print result.shape
 		result.to_pickle('../../dataset/score_df2.pickle')
 
+		exit()
 		# TF_IDF
 		target_column = tf_idf_df[-1:]
 		tf_idf_df = tf_idf_df.drop(df.columns[[-1]], axis=1)
