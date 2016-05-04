@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
+import os
 
-from word_count_evaluation import clean_text
-from feature_engineering import tokenize_and_stem
+from a02a_word_count_evaluation import clean_text
+from a01c_feature_engineering import tokenize_and_stem
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -59,10 +60,11 @@ def perform_lsa_count_vect(debug):
     # if debug:
     #     print doc_matrix
 
-    training_data = pd.read_csv('../../dataset/train.csv', encoding='ISO-8859-1')
+    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv')
 
+    all_feature_names = [0, 1, 2, 3, 'relevance']
     score_df = pd.DataFrame(
-        columns=[0, 1, 2, 3, 'relevance'],
+        columns=all_feature_names,
         index=training_data['id'].tolist()
     )
 
@@ -71,7 +73,7 @@ def perform_lsa_count_vect(debug):
     counter = 0
     for isearch in training_data.iterrows():
 
-        search_term_tokens = tokenize_and_stem(clean_text(isearch[1].search_term), return_text=True)
+        search_term_tokens = isearch[1].search_term
 
         # # debug
         # print search_term_set
@@ -83,9 +85,9 @@ def perform_lsa_count_vect(debug):
 
         test_matrix = [
             search_term_tokens,
-            (" ".join(doc_matrix.ix[np.int64(p_id), 'title'])).decode('ISO-8859-1'),
-            (" ".join(doc_matrix.ix[np.int64(p_id), 'description'])).decode('ISO-8859-1'),
-            (" ".join(doc_matrix.ix[np.int64(p_id), 'attributes'])).decode('ISO-8859-1'),
+            " ".join(doc_matrix.ix[np.int64(p_id), 'title']),
+            " ".join(doc_matrix.ix[np.int64(p_id), 'description']),
+            " ".join(doc_matrix.ix[np.int64(p_id), 'attributes']),
         ]
 
         # count vectorizer to books
@@ -148,106 +150,7 @@ def perform_lsa_count_vect(debug):
     print("Score Dataframe lsa_cvect succesfully saved!")
     return None
 
-
-def perform_tf_idf(debug=False):
-    bow_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
-
-    max_features = None
-    # define vectorizer parameters
-    print("Setup TF-IDF Vectorizer")
-
-    tfidf_vectorizer = TfidfVectorizer(max_df=0.7, max_features=max_features,
-                                       min_df=0.2, stop_words=None,
-                                       use_idf=True, tokenizer=None)
-
-    print("Perform TF-IDF on the search results -- Max features = " + str(max_features))
-    kernel_type = 'rbf'
-
-    training_data = pd.read_csv('../../dataset/train.csv', encoding='ISO-8859-1')
-
-    # # debug prints
-    #     print("Bag of words matrix: ")
-    #     print(bow_matrix)
-    #     print("")
-    #     print("Training Data: ")
-    #     print(training_data)
-
-    score_df = pd.DataFrame(
-        columns=['title_rate', 'desc_rate', 'attr_rate', 'relevance'],
-        index=training_data['id'].tolist()
-    )
-
-    counter = 0
-    for isearch in training_data.iterrows():
-        search_term_tokens = tokenize_and_stem(clean_text(isearch[1].search_term))
-
-        # # debug
-        # print search_term_set
-
-        # get p_id, search_id and relevance from tr_data
-        p_id = isearch[1].product_uid
-        relevance = isearch[1].relevance
-        search_id = isearch[1].id
-
-        test_matrix = [
-            " ".join(search_term_tokens),
-            " ".join(bow_matrix.ix[np.int64(p_id), 'title']),
-            " ".join(bow_matrix.ix[np.int64(p_id), 'description']),
-            " ".join(bow_matrix.ix[np.int64(p_id), 'attributes']),
-        ]
-
-        tfidf_matrix = tfidf_vectorizer.fit_transform(test_matrix)  # fit the vectorizer to books
-
-        # Run all kernels for debug reasons (see print below)
-        #
-        # for kernel_type in get_kernel_types():
-        #     print("Calculate similarity with - " + kernel_type + " kernel")
-        #     sim_matrix = get_similarity_matrix(tfidf_matrix, kernel_type)[0]
-        #     print(sim_matrix)
-        # break
-
-        # # Debug
-        # print("Calculate similarity with - " + kernel_type + " kernel")
-
-        sim_matrix = get_similarity_matrix(tfidf_matrix, kernel_type)[0]
-        title_score = sim_matrix[1]
-        desc_score = sim_matrix[2]
-        attr_score = sim_matrix[3]
-
-        # # Debug
-        # print(sim_matrix)
-        # print("Title score - " + str(title_score))
-        # print("Desc score - " + str(desc_score))
-        # print("Attrs score - " + str(attr_score))
-
-        score_row = {
-            'relevance': relevance,
-            'title_rate': title_score,
-            'desc_rate': desc_score,
-            'attr_rate': attr_score,
-        }
-
-        score_df.loc[search_id] = pd.Series(score_row)
-
-        counter += 1
-
-        if (counter is not 0 and counter % 1000 == 0):
-            print(str(counter) + " searches processed")
-            # # Stop execution for debug reasons
-            # if counter == 1000:
-            #     break
-
-    score_df.to_pickle('../../dataset/score_df_tfidf.pickle')
-
-    if debug:
-        print(score_df)
-
-    print("Score Dataframe succesfully saved!")
-    return None
-
-
 if __name__ == "__main__":
-    # perform_tf_idf(debug=True)
     perform_lsa_count_vect(debug=True)
 
 

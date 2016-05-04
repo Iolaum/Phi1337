@@ -4,8 +4,8 @@ import pandas as pd
 import numpy as np
 import os
 
-from word_count_evaluation import clean_text
-from feature_engineering import tokenize_and_stem
+from a02a_word_count_evaluation import clean_text
+from a01c_feature_engineering import tokenize_and_stem
 
 
 def map_sets_to_rates(set_name):
@@ -21,42 +21,24 @@ def create_score_dataframe():
     # # step 1
     # Load bow from previous script
     bow_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
+    # print(bow_matrix)
 
     # # Debug
     # print(bow_matrix)
 
     # # step 2
     # iterate over training data to create the score dataframe
-    training_data = pd.read_csv('../../dataset/train.csv', encoding='ISO-8859-1')
+    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv')
+    # training_data['search_term'] = training_data['search_term'].fillna(" ")
+
+    # index = training_data['search_term'].index[training_data['search_term'].apply(np.isnan)]
+    # print(index)
 
     # # debug prints
     # print(bow_matrix)
     # print(training_data)
 
-    # Read additional features from the result of feature_engineering
-    # and append to score_df before saving it.
-    # Read from file
-    preprocessed_path = '../../dataset/features.csv'
-    features_df = None
-    should_add_features = False
-    if os.path.isfile(preprocessed_path):
-        print("Found Preprocessed DataFrame... Begin appending features to score matrix")
-        features_df = pd.read_csv(preprocessed_path, index_col=0)
-        should_add_features = True
-    else:
-        print("Not Found Preprocessed DataFrame")
-
-    all_feature_names = ['title_rate', 'desc_rate', 'attr_rate']
-
-    if should_add_features:
-        feature_names = features_df.columns.tolist()
-        no_features = len(feature_names)
-        all_feature_names.extend(feature_names)
-        print features_df.index
-
-    # append last column with target, so it's easy to extract columns when creating X and Y.
-    all_feature_names.append('relevance')
-    print("Features: {}".format(all_feature_names))
+    all_feature_names = ['title_rate', 'desc_rate', 'attr_rate', 'relevance']
     score_df = pd.DataFrame(
         columns=all_feature_names,
         index=training_data['id'].tolist()
@@ -64,7 +46,12 @@ def create_score_dataframe():
 
     counter = 0
     for isearch in training_data.iterrows():
-        search_term_set = set(tokenize_and_stem(clean_text(isearch[1].search_term)))
+        search_text = isearch[1].search_term
+
+        try:
+            search_term_set = set(search_text.split())
+        except:
+            print(search_text)
 
         # # debug
         # print search_term_set
@@ -102,13 +89,7 @@ def create_score_dataframe():
             col_name = map_sets_to_rates(set_name)
             score_row[col_name] = score
 
-        row_series = pd.Series(score_row)
-
-        ### ADD FEATURES ###
-        if should_add_features:
-            row_series = row_series.append(features_df.ix[search_id])
-            
-        score_df.loc[search_id] = row_series
+        score_df.loc[search_id] = pd.Series(score_row)
 
         if (counter % 1000) == 0:
             print ("Succesfully created " + str(counter) + " rows")

@@ -6,24 +6,22 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 from sklearn.svm import SVR
+from sklearn.svm import LinearSVR
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 
 
 
-def regression(reg_type, use_tfidf, standardize_df, debug=False):
-    score_df = pd.read_pickle('../../dataset/score_df.pickle')
-
-    if use_tfidf:
-        # tfidf score dataframe
-        print("Running Regression with TFIDF score dataframe")
-        score_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
+def regression(reg_type, standardize_df, debug=False):
+    score_df = pd.read_pickle('../../dataset/score_df_final.pickle')
 
     # Fill NaN value
-    score_df = score_df.fillna(0.0)
+    # score_df = score_df.fillna(0.0)
 
     # The last column is the target
     training_set = np.array(score_df)
+
     # # Debug
     # print(training_set)
 
@@ -31,6 +29,7 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
     Y = training_set[:, -1] # the last col_index
 
     if standardize_df:
+        print("Standardizing...")
         X = StandardScaler().fit_transform(X)
 
     # Debug
@@ -69,14 +68,19 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
     if reg_type == 'linear':
         print("Regression Type - Linear")
         lin_model = LinearRegression()
-    elif reg_type == 'SVR':
+    elif reg_type == 'svr':
         print("Regression Type - SVR(RBF)")
         lin_model = SVR()
     elif reg_type == 'rfr':
         print("Regression Type - Random Forest Regressor (RFR)")
-        lin_model = RandomForestRegressor()
+        lin_model = RandomForestRegressor(
+            n_estimators=14,
+            max_features='auto',
+            max_depth=6
+        )
 
     lin_model.fit(xtr, ytr)
+    # print(lin_model.feature_importances_)
 
     # Check for overfitting. Predicted the relevance for the training data.
     print("\nError on training set")
@@ -95,11 +99,11 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
 
 
 if __name__ == "__main__":
-    # Change between SVR or Linear or rfr
+    # Change between:
+    # svr
+    # linear
+    # rfr
     regression_type = 'rfr'
-    standardize_df = False
+    standardize_df = True
 
-    # Change to use tfidf scores
-    use_tfidf = False
-
-    regression(regression_type, use_tfidf, standardize_df, debug=False)
+    regression(regression_type, standardize_df, debug=False)

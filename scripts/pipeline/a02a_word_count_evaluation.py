@@ -6,9 +6,7 @@ import os
 
 from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from feature_engineering import preprocess_data
-
-stops = set(nltk.corpus.stopwords.words("english"))
+from a01c_feature_engineering import preprocess_data
 
 
 def clean_text(text):
@@ -70,12 +68,16 @@ def main(return_text=False):
         counter += 1
         if counter == max_count:
             break
+        if counter % 1000 == 0:
+            print("Processed " + str(counter) + " entries.")
 
     # create panda dataframe
     df = pd.DataFrame(bag_of_word_matrix, index=prod_ids.tolist()[:counter], columns=column_orders)
+
     # print type(df.index.values[0])
     # print type(df.index[0])
     df.to_pickle('../../dataset/bow_per_product.pickle')
+    print(" Finished creating bag of word matrix!")
 
     # for prod_attr in prod_attributes:
     #     print(prod_attr)
