@@ -1,0 +1,19 @@
+Linear Regression:
+	Error on training set
+	0.482180925564
+
+	Error on validation set. Check for overfitting
+	0.481451115654
+
+
+RF
+	n_estimators=14,
+    max_features='auto',
+    max_depth=6
+
+	Error on training set
+	0.474994837576
+
+	Error on validation set. Check for overfitting
+	0.478242031465
+

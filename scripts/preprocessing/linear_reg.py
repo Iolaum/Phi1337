@@ -6,6 +6,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 from sklearn.svm import SVR
+from sklearn.svm import LinearSVR
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 
@@ -78,7 +80,7 @@ def regression(reg_type, standardize_df, debug=False):
         )
 
     lin_model.fit(xtr, ytr)
-    print(lin_model.feature_importances_)
+    # print(lin_model.feature_importances_)
 
     # Check for overfitting. Predicted the relevance for the training data.
     print("\nError on training set")
@@ -102,6 +104,6 @@ if __name__ == "__main__":
     # linear
     # rfr
     regression_type = 'rfr'
-    standardize_df = False
+    standardize_df = True
 
     regression(regression_type, standardize_df, debug=False)
