@@ -11,6 +11,9 @@ from nltk.stem.snowball import SnowballStemmer
 
 from unidecode import unidecode
 
+stops = set(nltk.corpus.stopwords.words("english"))
+
+
 def fixtypos(training_data):
 	# traing_data to be given when called
 
@@ -24,6 +27,7 @@ def fixtypos(training_data):
 	return training_data
 
 def tokenize_and_stem(text, return_text=False):
+
 	if isinstance(text, str):
 		text = text.decode('utf-8')
 		stemmer = SnowballStemmer("english")
@@ -33,8 +37,9 @@ def tokenize_and_stem(text, return_text=False):
 
 		# filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
 		stems = [stemmer.stem(t) for t in tokens]
+		meaningful_words = [w for w in stems if w not in stops]
 
-		return " ".join(stems) if return_text else stems
+		return " ".join(meaningful_words) if return_text else meaningful_words
 	return text
 
 
@@ -221,13 +226,6 @@ def feature_generation():
 
 	feature_df['brand_rate'] = brand_ratio(feature_df['search_brand_common_words'], feature_df['brand_word_count'])
 	feature_df['brands_numerical'] = training_data['brand'].map(lambda x: num_brand(x))
-
-	print(feature_df)
-	print(training_data)
-	print(feature_df.shape)
-	print(training_data.shape)
-	exit()
-
 	feature_df.to_csv('../../dataset/features.csv', encoding='utf-8')
 
 

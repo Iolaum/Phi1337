@@ -64,7 +64,7 @@ def create_score_dataframe():
 
     counter = 0
     for isearch in training_data.iterrows():
-        search_term_set = set(tokenize_and_stem(clean_text(isearch[1].search_term)))
+        search_term_set = set(isearch[1].search_term.split())
 
         # # debug
         # print search_term_set
