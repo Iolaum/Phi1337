@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 
 from word_count_evaluation import clean_text
 from feature_engineering import tokenize_and_stem
@@ -61,8 +62,30 @@ def perform_lsa_count_vect(debug):
 
     training_data = pd.read_csv('../../dataset/train.csv', encoding='ISO-8859-1')
 
+    # Read additional features from the result of feature_engineering
+    # and append to score_df before saving it.
+    # Read from file
+    preprocessed_path = '../../dataset/features.csv'
+    features_df = None
+    should_add_features = False
+    if os.path.isfile(preprocessed_path):
+        print("Found Preprocessed DataFrame... Begin appending features to score matrix")
+        features_df = pd.read_csv(preprocessed_path, index_col=0)
+        should_add_features = True
+    else:
+        print("Not Found Preprocessed DataFrame")
+
+    all_feature_names = [0, 1, 2, 3]
+    if should_add_features:
+        feature_names = features_df.columns.tolist()
+        no_features = len(feature_names)
+        all_feature_names.extend(feature_names)
+
+    # append last column with target, so it's easy to extract columns when creating X and Y.
+    all_feature_names.append('relevance')
+
     score_df = pd.DataFrame(
-        columns=[0, 1, 2, 3, 'relevance'],
+        columns=all_feature_names,
         index=training_data['id'].tolist()
     )
 
@@ -129,7 +152,12 @@ def perform_lsa_count_vect(debug):
             # if counter == 2:
         #     break
 
-        score_df.loc[search_id] = pd.Series(score_row)
+        row_series = pd.Series(score_row)
+        ### ADD FEATURES ###
+        if should_add_features:
+            row_series = row_series.append(features_df.ix[search_id])
+
+        score_df.loc[search_id] = row_series
         # print("pd.series score_row is:\n{}".format(pd.Series(score_row)))
 
         counter += 1
