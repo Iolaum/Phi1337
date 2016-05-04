@@ -71,9 +71,14 @@ def regression(reg_type, standardize_df, debug=False):
         lin_model = SVR()
     elif reg_type == 'rfr':
         print("Regression Type - Random Forest Regressor (RFR)")
-        lin_model = RandomForestRegressor()
+        lin_model = RandomForestRegressor(
+            n_estimators=14,
+            max_features='auto',
+            max_depth=6
+        )
 
     lin_model.fit(xtr, ytr)
+    print(lin_model.feature_importances_)
 
     # Check for overfitting. Predicted the relevance for the training data.
     print("\nError on training set")
@@ -96,7 +101,7 @@ if __name__ == "__main__":
     # svr
     # linear
     # rfr
-    regression_type = 'linear'
+    regression_type = 'rfr'
     standardize_df = False
 
     regression(regression_type, standardize_df, debug=False)
