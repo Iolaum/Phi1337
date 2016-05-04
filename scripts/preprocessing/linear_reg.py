@@ -11,16 +11,11 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 
-def regression(reg_type, use_tfidf, standardize_df, debug=False):
-    score_df = pd.read_csv('../../dataset/score_df.csv')
-
-    if use_tfidf:
-        # tfidf score dataframe
-        print("Running Regression with TFIDF score dataframe")
-        score_df = pd.read_csv('../../dataset/score_df_tfidf.csv')
+def regression(reg_type, standardize_df, debug=False):
+    score_df = pd.read_csv('../../dataset/score_df_final.csv')
 
     # Fill NaN value
-    score_df = score_df.fillna(0.0)
+    # score_df = score_df.fillna(0.0)
 
     # The last column is the target
     training_set = np.array(score_df)
@@ -69,7 +64,7 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
     if reg_type == 'linear':
         print("Regression Type - Linear")
         lin_model = LinearRegression()
-    elif reg_type == 'SVR':
+    elif reg_type == 'svr':
         print("Regression Type - SVR(RBF)")
         lin_model = SVR()
     elif reg_type == 'rfr':
@@ -95,11 +90,11 @@ def regression(reg_type, use_tfidf, standardize_df, debug=False):
 
 
 if __name__ == "__main__":
-    # Change between SVR or Linear or rfr
-    regression_type = 'rfr'
+    # Change between:
+    # svr
+    # linear
+    # rfr
+    regression_type = 'linear'
     standardize_df = False
 
-    # Change to use tfidf scores
-    use_tfidf = False
-
-    regression(regression_type, use_tfidf, standardize_df, debug=False)
+    regression(regression_type, standardize_df, debug=False)
