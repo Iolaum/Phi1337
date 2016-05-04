@@ -29,7 +29,7 @@ def fixtypos(training_data):
 def tokenize_and_stem(text, return_text=False):
 
 	if isinstance(text, str):
-		text = text.decode('utf-8')
+		# text = text.decode('utf-8')
 		stemmer = SnowballStemmer("english")
 
 		# first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
@@ -126,7 +126,7 @@ def preprocess_data():
 		attributes = pd.read_csv("../../dataset/attributes.csv")
 		brands = attributes[attributes.name == "MFG Brand Name"][["product_uid", "value"]].rename(
 			columns={"value": "brand"})
-
+		
 		print("Preprocess Search Terms")
 		training_data['search_term'] = training_data['search_term'].map(
 			lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
@@ -139,11 +139,12 @@ def preprocess_data():
 		descriptions['product_description'] = descriptions['product_description'].map(
 			lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
 
-		print(descriptions['product_description'])
+		#print(descriptions['product_description'])
 
 		print("Preprocess Brands")
+
 		brands['brand'] = brands['brand'].map(
-			lambda i: tokenize_and_stem(preprocess_text(i), return_text=True))
+			lambda i: tokenize_and_stem(preprocess_text(re.sub(r'[^\x00-\x7f]', r'', str(i))), return_text=True))
 
 		print("Merge data with descriptions")
 		training_data = pd.merge(training_data, descriptions, how='left', on='product_uid')
@@ -207,7 +208,6 @@ def feature_generation():
 		lambda i: find_occurences(i.split('\t')[0], i.split('\t')[1]))
 	feature_df['search_text_occurences_in_description'] = training_data['info'].map(
 		lambda i: find_occurences(i.split('\t')[0], i.split('\t')[2]))
-	training_data['search_term'].map(lambda i: len(i.split())).astype(np.int64)
 	feature_df['search_last_word_in_title'] = training_data['info'].map(
 		lambda i: find_occurences(i.split('\t')[0].split(" ")[-1], i.split('\t')[1]))
 	feature_df['search_last_word_in_description'] = training_data['info'].map(
