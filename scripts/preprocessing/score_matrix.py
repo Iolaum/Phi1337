@@ -20,7 +20,7 @@ def map_sets_to_rates(set_name):
 def create_score_dataframe():
     # # step 1
     # Load bow from previous script
-    bow_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
+    bow_matrix = pd.read_csv('../../dataset/bow_per_product.csv')
 
     # # Debug
     # print(bow_matrix)
@@ -89,7 +89,7 @@ def create_score_dataframe():
 
     print score_df.shape
 
-    score_df.to_pickle('../../dataset/score_df.pickle')
+    score_df.to_csv('../../dataset/score_df.csv')
     print("Score Dataframe succesfully saved!")
 
 

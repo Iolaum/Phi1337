@@ -71,9 +71,10 @@ def main(return_text=False):
 
     # create panda dataframe
     df = pd.DataFrame(bag_of_word_matrix, index=prod_ids.tolist()[:counter], columns=column_orders)
+
     # print type(df.index.values[0])
     # print type(df.index[0])
-    df.to_pickle('../../dataset/bow_per_product.pickle')
+    df.to_csv('../../dataset/bow_per_product.csv')
 
     # for prod_attr in prod_attributes:
     #     print(prod_attr)
@@ -92,7 +93,7 @@ def main(return_text=False):
 
 if __name__ == "__main__":
     # Change return_text to decide if the cleaned result of each text will be text or list
-    if os.path.isfile("../../dataset/bow_per_product.pickle"):
+    if os.path.isfile("../../dataset/bow_per_product.csv"):
         print("Found Bag of Words DataFrame... No Need to proceed further.")
     else:
         print("No Bag of Words DataFrame Found... Proceed BoW creation")

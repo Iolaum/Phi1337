@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 def concatDataFrames():
-	score_df = pd.read_pickle('../../dataset/score_df.pickle')
+	score_df = pd.read_csv('../../dataset/score_df.csv')
 	#tf_idf_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
 	#lsa_df = pd.read_pickle('../../dataset/score_df_lsa_cvect.pickle')
 	# Read additional features from the result of feature_engineering
@@ -28,7 +28,7 @@ def concatDataFrames():
 		
 		result = pd.concat([score_df, features_df, target_column], axis=1)
 		print result.shape
-		result.to_pickle('../../dataset/score_df2.pickle')
+		result.to_csv('../../dataset/score_df2.csv')
 
 		exit()
 		# TF_IDF
@@ -37,7 +37,7 @@ def concatDataFrames():
 		
 		result = pd.concat([tf_idf_df, features_df, target_column], axis=1)
 		print result.shape
-		result.to_pickle('../../dataset/score_df_tfidf2.pickle')
+		result.to_csv('../../dataset/score_df_tfidf2.csv')
 
 		# LSA
 		target_column = lsa_df[-1:]
@@ -45,7 +45,7 @@ def concatDataFrames():
 		
 		result = pd.concat([lsa_df, features_df, target_column], axis=1)
 		print result.shape
-		result.to_pickle('../../dataset/score_df_lsa_cvect2.pickle')
+		result.to_csv('../../dataset/score_df_lsa_cvect2.csv')
 
 
 if __name__ == "__main__":

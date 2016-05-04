@@ -12,12 +12,12 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 def regression(reg_type, use_tfidf, standardize_df, debug=False):
-    score_df = pd.read_pickle('../../dataset/score_df.pickle')
+    score_df = pd.read_csv('../../dataset/score_df.csv')
 
     if use_tfidf:
         # tfidf score dataframe
         print("Running Regression with TFIDF score dataframe")
-        score_df = pd.read_pickle('../../dataset/score_df_tfidf.pickle')
+        score_df = pd.read_csv('../../dataset/score_df_tfidf.csv')
 
     # Fill NaN value
     score_df = score_df.fillna(0.0)

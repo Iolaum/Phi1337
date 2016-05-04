@@ -56,7 +56,7 @@ def get_similarity_matrix(tfidf_matr, kernel):
 def perform_lsa_count_vect(debug):
     cvect = CountVectorizer(min_df=0)
 
-    doc_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
+    doc_matrix = pd.read_csv('../../dataset/bow_per_product.csv')
     # if debug:
     #     print doc_matrix
 
@@ -142,7 +142,7 @@ def perform_lsa_count_vect(debug):
             # if counter == 1000:
             #     break
 
-    score_df.to_pickle('../../dataset/score_df_lsa_cvect.pickle')
+    score_df.to_csv('../../dataset/score_df_lsa_cvect.csv')
 
     if debug:
         print(score_df)
@@ -152,7 +152,7 @@ def perform_lsa_count_vect(debug):
 
 
 def perform_tf_idf(debug=False):
-    bow_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
+    bow_matrix = pd.read_csv('../../dataset/bow_per_product.csv')
 
     max_features = None
     # define vectorizer parameters
@@ -239,7 +239,7 @@ def perform_tf_idf(debug=False):
             # if counter == 1000:
             #     break
 
-    score_df.to_pickle('../../dataset/score_df_tfidf.pickle')
+    score_df.to_csv('../../dataset/score_df_tfidf.csv')
 
     if debug:
         print(score_df)
