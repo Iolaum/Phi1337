@@ -12,7 +12,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 def regression(reg_type, standardize_df, debug=False):
-    score_df = pd.read_csv('../../dataset/score_df_final.csv')
+    score_df = pd.read_pickle('../../dataset/score_df_final.pickle')
 
     # Fill NaN value
     # score_df = score_df.fillna(0.0)

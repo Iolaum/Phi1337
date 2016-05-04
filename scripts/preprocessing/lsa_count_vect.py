@@ -60,7 +60,7 @@ def perform_lsa_count_vect(debug):
     # if debug:
     #     print doc_matrix
 
-    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv', encoding='ISO-8859-1')
+    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv')
 
     all_feature_names = [0, 1, 2, 3, 'relevance']
     score_df = pd.DataFrame(
@@ -73,7 +73,7 @@ def perform_lsa_count_vect(debug):
     counter = 0
     for isearch in training_data.iterrows():
 
-        search_term_tokens = tokenize_and_stem(clean_text(isearch[1].search_term), return_text=True)
+        search_term_tokens = isearch[1].search_term
 
         # # debug
         # print search_term_set
@@ -85,9 +85,9 @@ def perform_lsa_count_vect(debug):
 
         test_matrix = [
             search_term_tokens,
-            (" ".join(doc_matrix.ix[np.int64(p_id), 'title'])).decode('ISO-8859-1'),
-            (" ".join(doc_matrix.ix[np.int64(p_id), 'description'])).decode('ISO-8859-1'),
-            (" ".join(doc_matrix.ix[np.int64(p_id), 'attributes'])).decode('ISO-8859-1'),
+            " ".join(doc_matrix.ix[np.int64(p_id), 'title']),
+            " ".join(doc_matrix.ix[np.int64(p_id), 'description']),
+            " ".join(doc_matrix.ix[np.int64(p_id), 'attributes']),
         ]
 
         # count vectorizer to books

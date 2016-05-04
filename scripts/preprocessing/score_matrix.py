@@ -21,14 +21,18 @@ def create_score_dataframe():
     # # step 1
     # Load bow from previous script
     bow_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
-    print(bow_matrix)
+    # print(bow_matrix)
 
     # # Debug
     # print(bow_matrix)
 
     # # step 2
     # iterate over training data to create the score dataframe
-    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv', encoding='ISO-8859-1')
+    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv')
+    # training_data['search_term'] = training_data['search_term'].fillna(" ")
+
+    # index = training_data['search_term'].index[training_data['search_term'].apply(np.isnan)]
+    # print(index)
 
     # # debug prints
     # print(bow_matrix)
@@ -42,7 +46,12 @@ def create_score_dataframe():
 
     counter = 0
     for isearch in training_data.iterrows():
-        search_term_set = set(isearch[1].search_term.split())
+        search_text = isearch[1].search_term
+
+        try:
+            search_term_set = set(search_text.split())
+        except:
+            print(search_text)
 
         # # debug
         # print search_term_set

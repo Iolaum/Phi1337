@@ -26,7 +26,7 @@ def fixtypos(training_data):
 
 	return training_data
 
-def tokenize_and_stem(text, return_text=False):
+def tokenize_and_stem(text, return_text=False, remove_stop_words=True):
 
 	if isinstance(text, str):
 		# text = text.decode('utf-8')
@@ -36,8 +36,10 @@ def tokenize_and_stem(text, return_text=False):
 		tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
 
 		# filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
-		stems = [stemmer.stem(t) for t in tokens]
-		meaningful_words = [w for w in stems if w not in stops]
+		meaningful_words = [stemmer.stem(t) for t in tokens]
+
+		if remove_stop_words:
+			meaningful_words = [w for w in meaningful_words if w not in stops]
 
 		return " ".join(meaningful_words) if return_text else meaningful_words
 	return text
@@ -116,35 +118,40 @@ def preprocess_text(text):
 def preprocess_data():
 	if os.path.isfile("../../dataset/preprocessed_training_data.csv"):
 		print("Found Preprocessed DataFrame")
-		return pd.read_csv("../../dataset/preprocessed_training_data.csv", encoding="ISO-8859-1")
+		return pd.read_csv("../../dataset/preprocessed_training_data.csv")
 	else:
 		print("Preprocessing Started")
 		print("")
 
 		training_data = pd.read_csv("../../dataset/train.csv", encoding="ISO-8859-1")
+
+		print(training_data.isnull().sum())
+
 		descriptions = pd.read_csv("../../dataset/product_descriptions.csv", encoding="ISO-8859-1")
 		attributes = pd.read_csv("../../dataset/attributes.csv")
 		brands = attributes[attributes.name == "MFG Brand Name"][["product_uid", "value"]].rename(
 			columns={"value": "brand"})
+
+		training_data = fixtypos(training_data)
 		
 		print("Preprocess Search Terms")
 		training_data['search_term'] = training_data['search_term'].map(
-			lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
+			lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True, remove_stop_words=False))
 
 		print("Preprocess Titles")
 		training_data['product_title'] = training_data['product_title'].map(
-			lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
+			lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True, remove_stop_words=True))
 
 		print("Preprocess Descriptions")
 		descriptions['product_description'] = descriptions['product_description'].map(
-			lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True))
+			lambda i: tokenize_and_stem(preprocess_text(str(unidecode(i))), return_text=True, remove_stop_words=True))
 
 		#print(descriptions['product_description'])
 
 		print("Preprocess Brands")
 
 		brands['brand'] = brands['brand'].map(
-			lambda i: tokenize_and_stem(preprocess_text(re.sub(r'[^\x00-\x7f]', r'', str(i))), return_text=True))
+			lambda i: tokenize_and_stem(preprocess_text(re.sub(r'[^\x00-\x7f]', r'', str(i))), return_text=True, remove_stop_words=False))
 
 		print("Merge data with descriptions")
 		training_data = pd.merge(training_data, descriptions, how='left', on='product_uid')
@@ -152,11 +159,11 @@ def preprocess_data():
 		print("Merge data with brands")
 		training_data = pd.merge(training_data, brands, how='left', on='product_uid')
 
-		training_data = fixtypos(training_data)
 		training_data['info'] = training_data['search_term'] + "\t" + training_data['product_title'] + "\t" + \
 								training_data['product_description']
 
-		training_data.to_csv('../../dataset/preprocessed_training_data.csv', encoding='utf-8')
+		training_data.to_csv('../../dataset/preprocessed_training_data.csv')
+		print(training_data.isnull().sum())
 
 		return training_data
 
@@ -165,6 +172,7 @@ def feature_generation():
 	training_data = preprocess_data()
 
 	print(training_data)
+	print(training_data.isnull().sum())
 	print("")
 
 	print("Creating Feature Dataframe")
@@ -226,9 +234,8 @@ def feature_generation():
 
 	feature_df['brand_rate'] = brand_ratio(feature_df['search_brand_common_words'], feature_df['brand_word_count'])
 	feature_df['brands_numerical'] = training_data['brand'].map(lambda x: num_brand(x))
-	feature_df.to_csv('../../dataset/features.csv', encoding='utf-8')
+	feature_df.to_csv('../../dataset/features.csv')
 
 
 if __name__ == "__main__":
-	# preprocess_data()
 	feature_generation()

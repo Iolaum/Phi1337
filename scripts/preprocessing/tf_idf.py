@@ -66,7 +66,7 @@ def perform_tf_idf(debug=False):
     print("Perform TF-IDF on the search results -- Max features = " + str(max_features))
     kernel_type = 'rbf'
 
-    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv', encoding='ISO-8859-1')
+    training_data = pd.read_csv('../../dataset/preprocessed_training_data.csv')
 
     # # debug prints
     #     print("Bag of words matrix: ")
@@ -81,8 +81,9 @@ def perform_tf_idf(debug=False):
     )
 
     counter = 0
+
     for isearch in training_data.iterrows():
-        search_term_tokens = tokenize_and_stem(clean_text(isearch[1].search_term))
+        search_term_tokens = isearch[1].search_term
 
         # # debug
         # print search_term_set
@@ -94,9 +95,9 @@ def perform_tf_idf(debug=False):
 
         test_matrix = [
             " ".join(search_term_tokens),
-            (" ".join(bow_matrix.ix[np.int64(p_id), 'title'])).decode('ISO-8859-1'),
-            (" ".join(bow_matrix.ix[np.int64(p_id), 'description'])).decode('ISO-8859-1'),
-            (" ".join(bow_matrix.ix[np.int64(p_id), 'attributes'])).decode('ISO-8859-1'),
+            " ".join(bow_matrix.ix[np.int64(p_id), 'title']),
+            " ".join(bow_matrix.ix[np.int64(p_id), 'description']),
+            " ".join(bow_matrix.ix[np.int64(p_id), 'attributes']),
         ]
 
         tfidf_matrix = tfidf_vectorizer.fit_transform(test_matrix)  # fit the vectorizer to books
