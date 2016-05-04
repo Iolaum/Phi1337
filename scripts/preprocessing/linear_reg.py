@@ -19,6 +19,7 @@ def regression(reg_type, standardize_df, debug=False):
 
     # The last column is the target
     training_set = np.array(score_df)
+
     # # Debug
     # print(training_set)
 
@@ -26,6 +27,7 @@ def regression(reg_type, standardize_df, debug=False):
     Y = training_set[:, -1] # the last col_index
 
     if standardize_df:
+        print("Standardizing...")
         X = StandardScaler().fit_transform(X)
 
     # Debug
