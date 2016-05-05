@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pickle
 
 from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -11,99 +12,106 @@ from sklearn.svm import LinearSVR
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 
+def regression(reg_type, standardize_df, debug=False, save_model=False):
+	score_df = pd.read_pickle('../../dataset/score_df_final.pickle')
 
+	# Fill NaN value
+	# score_df = score_df.fillna(0.0)
 
-def regression(reg_type, standardize_df, debug=False):
-    score_df = pd.read_pickle('../../dataset/score_df_final.pickle')
+	# The last column is the target
+	training_set = np.array(score_df)
 
-    # Fill NaN value
-    # score_df = score_df.fillna(0.0)
+	# # Debug
+	# print(training_set)
 
-    # The last column is the target
-    training_set = np.array(score_df)
+	X = training_set[:, :-2] # grab the first to the col before last column
+	Y = training_set[:, -1] # the last col_index
 
-    # # Debug
-    # print(training_set)
+	if standardize_df:
+		print("Standardizing...")
+		X = StandardScaler().fit_transform(X)
 
-    X = training_set[:, :-2] # grab the first to the col before last column
-    Y = training_set[:, -1] # the last col_index
+	# Debug
 
-    if standardize_df:
-        print("Standardizing...")
-        X = StandardScaler().fit_transform(X)
+	if debug:
+		print("Score DataFrame")
+		print(score_df)
+		print("")
 
-    # Debug
+		print("Training Values")
+		print(X)
+		print("")
 
-    if debug:
-        print("Score DataFrame")
-        print(score_df)
-        print("")
+		print("Output Values")
+		print(Y)
+		print("")
 
-        print("Training Values")
-        print(X)
-        print("")
+		print("Shapes of X and Y")
+		print(X.shape)
+		print(Y.shape)
 
-        print("Output Values")
-        print(Y)
-        print("")
+	xtr, xts, ytr, yts = train_test_split(X, Y, test_size=0.2, random_state=13)
 
-        print("Shapes of X and Y")
-        print(X.shape)
-        print(Y.shape)
+	# Debug
+	if debug:
+		print("XTR - XTS")
+		print(xtr.shape)
+		print(xts.shape)
+		print("")
 
-    xtr, xts, ytr, yts = train_test_split(X, Y, test_size=0.2, random_state=13)
+		print("YTR - YTS")
+		print(ytr.shape)
+		print(yts.shape)
+		print("")
 
-    # Debug
-    if debug:
-        print("XTR - XTS")
-        print(xtr.shape)
-        print(xts.shape)
-        print("")
+	if reg_type == 'linear':
+		print("Regression Type - Linear")
+		lin_model = LinearRegression()
+	elif reg_type == 'svr':
+		print("Regression Type - SVR(RBF)")
+		lin_model = SVR()
+	elif reg_type == 'rfr':
+		print("Regression Type - Random Forest Regressor (RFR)")
+		lin_model = RandomForestRegressor(
+			n_estimators=14,
+			max_features='auto',
+			max_depth=6
+		)
 
-        print("YTR - YTS")
-        print(ytr.shape)
-        print(yts.shape)
-        print("")
+	lin_model.fit(xtr, ytr)
+	# print(lin_model.feature_importances_)
 
-    if reg_type == 'linear':
-        print("Regression Type - Linear")
-        lin_model = LinearRegression()
-    elif reg_type == 'svr':
-        print("Regression Type - SVR(RBF)")
-        lin_model = SVR()
-    elif reg_type == 'rfr':
-        print("Regression Type - Random Forest Regressor (RFR)")
-        lin_model = RandomForestRegressor(
-            n_estimators=14,
-            max_features='auto',
-            max_depth=6
-        )
+	###
+	if save_model:
+		# now you can save it to a file
+		filename = '../../dataset/model_' + reg_type +  '.pickle'
+		with open(filename, 'wb') as f:
+			pickle.dump(lin_model, f)
+	###
 
-    lin_model.fit(xtr, ytr)
-    # print(lin_model.feature_importances_)
+	# Check for overfitting. Predicted the relevance for the training data.
+	print("\nError on training set")
+	ytr_pred = lin_model.predict(xtr)
+	ytr_error = sqrt(mean_squared_error(ytr_pred, ytr))
+	print(ytr_error)
 
-    # Check for overfitting. Predicted the relevance for the training data.
-    print("\nError on training set")
-    ytr_pred = lin_model.predict(xtr)
-    ytr_error = sqrt(mean_squared_error(ytr_pred, ytr))
-    print(ytr_error)
+	print("")
 
-    print("")
+	# Predicted the relevance for the test data.
+	print("Error on validation set. Check for overfitting")
+	yts_pred = lin_model.predict(xts)
+	yts_error = sqrt(mean_squared_error(yts_pred, yts))
 
-    # Predicted the relevance for the test data.
-    print("Error on validation set. Check for overfitting")
-    yts_pred = lin_model.predict(xts)
-    yts_error = sqrt(mean_squared_error(yts_pred, yts))
-
-    print(yts_error)
+	print(yts_error)
 
 
 if __name__ == "__main__":
-    # Change between:
-    # svr
-    # linear
-    # rfr
-    regression_type = 'rfr'
-    standardize_df = True
+	# Change between:
+	# svr
+	# linear
+	# rfr
+	regression_type = 'rfr'
+	standardize_df = True
+	save_model = True
 
-    regression(regression_type, standardize_df, debug=False)
+	regression(regression_type, standardize_df, debug=False, save_model)
