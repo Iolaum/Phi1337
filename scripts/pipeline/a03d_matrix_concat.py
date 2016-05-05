@@ -45,11 +45,11 @@ def concatDataFrames():
 		print features_df.shape
 		print(features_df)
 
-		result = pd.concat([score_df, tf_idf_df, lsa_df, features_df, target_column], axis=1, ignore_index=True)
+		result = pd.concat([score_df, tf_idf_df, lsa_df, features_df, target_column], axis=1)
 
-		print result.shape
+		print result.columns.tolist()
 
-		result.to_pickle('../../dataset/score_df_final.pickle')
+		#result.to_pickle('../../dataset/score_df_final.pickle')
 
 
 if __name__ == "__main__":
