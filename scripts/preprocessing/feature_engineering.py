@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+# Part of the code from the functions 'preprocess_text', 'preprocess_data' and 'feature_generation' is taken from:
+# https://www.kaggle.com/the1owl/home-depot-product-search-relevance/rf-mean-squared-error
+# on 30/4/2016
+
 from __future__ import division
 import numpy as np
 import os
