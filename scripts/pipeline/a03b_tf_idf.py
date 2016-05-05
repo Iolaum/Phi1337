@@ -94,7 +94,7 @@ def perform_tf_idf(debug=False):
         search_id = isearch[1].id
 
         test_matrix = [
-            " ".join(search_term_tokens),
+            search_term_tokens,
             " ".join(bow_matrix.ix[np.int64(p_id), 'title']),
             " ".join(bow_matrix.ix[np.int64(p_id), 'description']),
             " ".join(bow_matrix.ix[np.int64(p_id), 'attributes']),

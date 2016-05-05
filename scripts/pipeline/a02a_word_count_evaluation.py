@@ -8,6 +8,7 @@ from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from a01c_feature_engineering import preprocess_data
 
+stops = set(nltk.corpus.stopwords.words("english"))
 
 def clean_text(text):
     clean_text = re.sub("[^a-zA-Z0-9]]", " ", re.sub(r'[^\x00-\x7f]', r'', text), 0, re.UNICODE)

@@ -56,8 +56,7 @@ def get_similarity_matrix(tfidf_matr, kernel):
 def perform_lsa_count_vect(debug):
     cvect = CountVectorizer(min_df=0)
 
-    doc_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
-    doc_matrix_indexes = set(doc_matrix.index.values)
+    doc_matrix = pd.read_pickle('../../dataset/bow_per_product_tst.pickle')
     # if debug:
     #     print doc_matrix
 
@@ -72,17 +71,11 @@ def perform_lsa_count_vect(debug):
     print("Starting Count Vectorizer!")
 
     counter = 0
-    mis_pid = 0
     for isearch in training_data.iterrows():
         # get p_id, search_id and relevance from tr_data
         p_id = isearch[1].product_uid
         search_id = isearch[1].id
         search_term_tokens = isearch[1].search_term
-        if p_id not in doc_matrix_indexes:
-            mis_pid += 1
-            continue
-
-
         # # debug
         # print search_term_set
         test_matrix = [
@@ -92,8 +85,12 @@ def perform_lsa_count_vect(debug):
             " ".join(doc_matrix.ix[np.int64(p_id), 'attributes']),
         ]
 
+        try:
+            cvect_matrix = cvect.fit_transform(test_matrix)
+        except:
+            test_matrix = map(clean_text, test_matrix)
+            cvect_matrix = cvect.fit_transform(test_matrix)
         # count vectorizer to books
-        cvect_matrix = cvect.fit_transform(test_matrix)
 
         # # debug
         # print cvect_matrix
@@ -143,8 +140,6 @@ def perform_lsa_count_vect(debug):
             #     break
 
     score_df.to_pickle('../../dataset/score_df_lsa_cvect_tst.pickle')
-
-    print ("MIS PID : " + str(mis_pid) + " ea.")
 
     if debug:
         print(score_df)

@@ -15,7 +15,6 @@ from sklearn.metrics.pairwise import rbf_kernel
 from sklearn.metrics.pairwise import laplacian_kernel
 from gensim.models.tfidfmodel import TfidfModel
 
-
 def get_kernel_types():
     return [
         'cosine_similarity',
@@ -53,8 +52,7 @@ def get_similarity_matrix(tfidf_matr, kernel):
 
 
 def perform_tf_idf(debug=False):
-    bow_matrix = pd.read_pickle('../../dataset/bow_per_product.pickle')
-    bow_indexes = set(bow_matrix.index.values)
+    bow_matrix = pd.read_pickle('../../dataset/bow_per_product_tst.pickle')
 
     max_features = None
     # define vectorizer parameters
@@ -82,29 +80,29 @@ def perform_tf_idf(debug=False):
     )
 
     counter = 0
-    mis_pid = 0
     for isearch in training_data.iterrows():
         # get p_id, search_id and relevance from tr_data
         p_id = isearch[1].product_uid
         search_id = isearch[1].id
         search_term_tokens = isearch[1].search_term
-        if p_id not in bow_indexes:
-            mis_pid += 1
-            continue
 
         # # debug
         # print search_term_set
-
-        
-
         test_matrix = [
-            " ".join(search_term_tokens),
+            search_term_tokens,
             " ".join(bow_matrix.ix[np.int64(p_id), 'title']),
             " ".join(bow_matrix.ix[np.int64(p_id), 'description']),
             " ".join(bow_matrix.ix[np.int64(p_id), 'attributes']),
         ]
+        try:
+            tfidf_matrix = tfidf_vectorizer.fit_transform(test_matrix)  # fit the vectorizer to books
+        except:
+            test_matrix = map(clean_text, test_matrix)
 
-        tfidf_matrix = tfidf_vectorizer.fit_transform(test_matrix)  # fit the vectorizer to books
+            tfidf_matrix = tfidf_vectorizer.fit_transform(test_matrix)  # fit the vectorizer to books
+            #print("ERROR!!!!!  " + str(p_id))
+            #print(test_matrix)
+            # exit()
 
         # Run all kernels for debug reasons (see print below)
         #
@@ -148,8 +146,6 @@ def perform_tf_idf(debug=False):
 
     if debug:
         print(score_df)
-
-    print ("MIS PID : " + str(mis_pid) + " ea.")
 
     print("Score Dataframe succesfully saved!")
     return None
