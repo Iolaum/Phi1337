@@ -24,3 +24,16 @@ RF
 	0.48815
 	0.48765
 
+
+
+RF
+
+	Error on training set
+	0.450595475619
+
+	Error on validation set. Check for overfitting
+	0.476816626678
+
+	Submission
+	0.49091
+

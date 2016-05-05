@@ -12,6 +12,16 @@ from sklearn.svm import LinearSVR
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 
+
+def prune(x):
+	if x < 1:
+		return 1
+	elif x > 3:
+		return 3
+	else:
+		return x
+
+
 def regression(reg_type, standardize_df, debug=False):
 	# load model
 	filename = '../../dataset/model_' + reg_type +  '.pickle'
@@ -29,7 +39,10 @@ def regression(reg_type, standardize_df, debug=False):
 
 	if standardize_df:
 		print("Standardizing...")
-		X = StandardScaler().fit_transform(X)
+		with open("../../dataset/scaler.pickle", 'rb') as handle:
+			scaler = pickle.load(handle)
+
+		X = scaler.transform(X)
 
 	# Debug
 
@@ -71,6 +84,8 @@ def regression(reg_type, standardize_df, debug=False):
 	id_series = pd.read_csv('../../dataset/test.csv')['id']
 	submission_df = pd.DataFrame(id_series, columns=['id'])
 	submission_df['relevance'] = yts_pred
+	submission_df['relevance'] = submission_df['relevance'].map(lambda x: prune(x))
+
 	submission_df.to_csv('../../dataset/submission.csv', columns=['id', 'relevance'], index=False)
 
 if __name__ == "__main__":

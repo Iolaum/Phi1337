@@ -29,7 +29,11 @@ def regression(reg_type, standardize_df, debug=False, save_model=False):
 
 	if standardize_df:
 		print("Standardizing...")
-		X = StandardScaler().fit_transform(X)
+		scaler = StandardScaler().fit(X)
+
+		print("Saving standardizer")
+		with open("../../dataset/scaler.pickle", 'wb') as handle
+			pickle.dump(scaler, handle)
 
 	# Debug
 
@@ -110,7 +114,7 @@ if __name__ == "__main__":
 	# svr
 	# linear
 	# rfr
-	regression_type = 'svr'
+	regression_type = 'linear'
 	standardize_df = True
 	save_model = True
 
