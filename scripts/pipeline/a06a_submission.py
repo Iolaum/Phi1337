@@ -71,14 +71,14 @@ def regression(reg_type, standardize_df, debug=False):
 	id_series = pd.read_csv('../../dataset/test.csv')['id']
 	submission_df = pd.DataFrame(id_series, columns=['id'])
 	submission_df['relevance'] = yts_pred
-	submission_df.to_csv('../../dataset/submission.csv', columns=['id', 'relevance'])
+	submission_df.to_csv('../../dataset/submission.csv', columns=['id', 'relevance'], index=False)
 
 if __name__ == "__main__":
 	# Change between:
 	# svr
 	# linear
 	# rfr
-	regression_type = 'rfr'
+	regression_type = 'svr'
 	standardize_df = True
 
 	regression(regression_type, standardize_df, debug=False)

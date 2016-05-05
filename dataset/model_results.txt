@@ -1,9 +1,12 @@
 Linear Regression:
 	Error on training set
-	0.48171583748
+	0.480632671931
 
 	Error on validation set. Check for overfitting
-	0.480900584795
+	0.479797321591
+
+	Submission
+	0.48765
 
 
 RF
@@ -12,8 +15,12 @@ RF
     max_depth=6
 
 	Error on training set
-	0.474696011647
+	0.474440666469
 
 	Error on validation set. Check for overfitting
-	0.477708250455
+	0.477770962488
+
+	Submission
+	0.48815
+	0.48765
 

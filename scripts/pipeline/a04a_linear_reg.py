@@ -24,7 +24,7 @@ def regression(reg_type, standardize_df, debug=False, save_model=False):
 	# # Debug
 	# print(training_set)
 
-	X = training_set[:, :-2] # grab the first to the col before last column
+	X = training_set[:, :-1] # grab the first to the col before last column
 	Y = training_set[:, -1] # the last col_index
 
 	if standardize_df:
@@ -110,8 +110,8 @@ if __name__ == "__main__":
 	# svr
 	# linear
 	# rfr
-	regression_type = 'rfr'
+	regression_type = 'svr'
 	standardize_df = True
 	save_model = True
 
-	regression(regression_type, standardize_df, debug=False, save_model)
+	regression(regression_type, standardize_df, debug=False, save_model=True)
