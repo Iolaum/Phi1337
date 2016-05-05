@@ -11,6 +11,9 @@ from sklearn.svm import LinearSVR
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
+import matplotlib.pyplot as plt
+
+import operator
 
 def regression(reg_type, standardize_df, debug=False, save_model=False):
 	score_df = pd.read_pickle('../../dataset/score_df_final.pickle')
@@ -82,8 +85,46 @@ def regression(reg_type, standardize_df, debug=False, save_model=False):
 			max_depth=6
 		)
 
+	x_labels = ['Title Ratio', 'Desc Ratio', 'Attr Ratio',
+				'Title Ratio - TFIDF', 'Desc Ratio - TFIDF', 'Attr Ratio - TFIDF',
+				'LSA 1st', 'LSA 2nd', 'LSA 3rd', 'LSA 4th', 
+				'Search Length', 'Word Count - Search', 'Word Count - Title', 'Word Count - Desc', 
+				'Search in Title', 'Search in Desc', 
+				'Last Search Word in Title', 'Last Search Word in Desc', 'Common Words - Search/Title', 
+				'Common Words - Search/Desc', 'Word Count - Brand', 'Common Words - Search/Brand', 
+				'Brand Ratio', 'Brand - Numerical']
 	lin_model.fit(xtr, ytr)
-	# print(lin_model.feature_importances_)
+	fitted_features = lin_model.feature_importances_.tolist()
+
+	sorted_features = {}
+	for index, value in enumerate(x_labels):
+		sorted_features[value] = fitted_features[index]
+	sorted_keys = sorted(sorted_features.items(), key=operator.itemgetter(1), reverse=True)
+	print sorted_keys
+	xx = []
+	yy = []
+	n = 0
+	for index, values in enumerate(sorted_keys):
+		n += 1
+		xx.append(values[0])
+		yy.append(values[1])
+
+		if n == 10:
+			break
+
+	X = np.arange(n)
+
+	plt.barh(X, yy, facecolor='#9999ff', align='center', edgecolor='white')
+	plt.yticks(X, xx)
+
+	for x, score in zip(X, yy):
+		plt.text(score + 0.03, x, '%.3f' % score, ha='center', va='bottom')
+	#plt.ylabel('Importance Scores')
+	#plt.xlabel('Features name')
+	plt.title('Top Ten Features Chosen by Random-Forest')
+	plt.show()
+
+	exit()
 
 	###
 	if save_model:
@@ -117,5 +158,7 @@ if __name__ == "__main__":
 	regression_type = 'linear'
 	standardize_df = True
 	save_model = True
+	debug = False
 
 	regression(regression_type, standardize_df, debug=False, save_model=True)
+
